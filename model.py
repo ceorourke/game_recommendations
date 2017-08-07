@@ -13,26 +13,39 @@ class User(db.Model):
 
     user_id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
     username = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(20), nullable=False)
+    account_created = db.Column(db.Datetime, nullable=False)
+
+    follower = db.relationship("Following",
+                              secondary="following",
+                              primaryjoin="User.user_id==Following.follower",
+                              secondaryjoin="User.user_id==Following.followee")
+
+    followee = db.relationship("Following",
+                              secondary="following",
+                              primaryjoin="User.user_id==Following.followee",
+                              secondaryjoin="User.user_id==Following.follower")
 
     def __repr__(self):
         """Provide useful info when printed to console"""
 
         s = "<User user_id=%s username=%s password=%s>"
 
-        # remove password when not in development!!
+        # TODO probably remove password when not in development
         return s % (self.user_id, self.username, self.password)
 
-class Lurker(db.Model):
-    """Lurker model."""
+class Following(db.Model):
+    """Following model."""
 
-    __tablename__ = "lurkers"
+    __tablename__ = "following"
 
     lurker_id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
     follower = db.Column(db.String(50), db.ForeignKey("users.user_id"), nullable=False)
     followee = db.Column(db.String(50), db.ForeignKey("users.user_id"),nullable=False)
+    following_since = db.Column(db.Datetime, nullable=False)
 
-    # make these different somehow. one is the user id of the follower, other 
+    # make these different...somehow. one is the user id of the follower, other 
     # is the user id of the followee. Sarah said you can specify this somehow
     user = db.Relationship("User", backref=db.backref("users"))
     user = db.Relationship("User", backref=db.backref("users"))
@@ -51,11 +64,11 @@ class Rating(db.Model):
 
     rating_id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
-    # game_id = db.Column(db.Integer, db.ForeignKey( to api id???
+    game_id = db.Column(db.Integer, db.ForeignKey("games.game_id"), nullable=False)
     score = db.Column(db.Integer, nullable=False)
 
     user = db.Relationship("User", backref=db.backref("users"))
-    # api_id = db.Relationship("") ??? 
+    game_id = db.Relationship("Game", backref=db.backref("games"))
 
     def __repr__(self):
         """Provide useful info when printed to console"""
@@ -70,48 +83,48 @@ class Game(db.Model):
 
     __tablename__ = "games"
 
-    api_id = db.Column(db.Integer, autoincrement=False, primary_key=True, nullable=False)
-    genre_id = db.Column(db.Integer, db.ForeignKey("genres.genre_id"), nullable=False)
+    # game_id is from the API
+    game_id = db.Column(db.Integer, autoincrement=False, primary_key=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
-
-    genre_id = db.Relationship("Genre", backref=db.backref("genres"))
 
     def __repr__(self):
         """Provide useful info when printed to console"""
 
-        s = "<Game api_id=%s genre_id=%s name=%s>"
+        s = "<Game game_id=%s name=%s>"
 
-        return s % (self.api_id, self.genre_id, self.name)
+        return s % (self.game_id, self.name)
 
 class System(db.Model):
     """System model."""
 
     __tablename__ = "systems"
 
-    api_id = db.Column(db.Integer, autoincrement=False, primary_key=True, nullable=False)
+    # system_id is from the API
+    system_id = db.Column(db.Integer, autoincrement=False, primary_key=True, nullable=False)
     name = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
         """Provide useful info when printed to console"""
 
-        s = "<System api_id=%s name=%s>"
+        s = "<System system_id=%s name=%s>"
 
-        return s % (self.api_id, self.name)
+        return s % (self.system_id, self.name)
 
 class Genre(db.Model):
     """Genre model."""
 
     __tablename__ = "genres"
 
-    api_id = db.Column(db.Integer, autoincrement=False, primary_key=True, nullable=False)
+    # genre_id is from the API
+    genre_id = db.Column(db.Integer, autoincrement=False, primary_key=True, nullable=False)
     name = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
         """Provide useful info when printed to console"""
 
-        s = "<Genre api_id=%s name=%s>"
+        s = "<Genre genre_id=%s name=%s>"
 
-        return s % (self.api_id, self.name)
+        return s % (self.genre_id, self.name)
 
 
 class UserSystem(db.Model):
@@ -140,7 +153,7 @@ class GameGenre(db.Model):
     __tablename__ = "gamegenres"
 
     gamegenre_id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
-    game_id = db.Column(db.Integer, db.ForeignKey("game.game_id"), nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey("games.game_id"), nullable=False)
     genre_id = db.Column(db.Integer, db.ForeignKey("genres.genre_id"), nullable=False)
 
     game_id = db.Relationship("Game", backref=db.backref("games"))
@@ -153,6 +166,50 @@ class GameGenre(db.Model):
         s = "<Gamegenre gamegenre_id=%s game_id=%s genre_id>"
 
         return s % (self.gamegenre_id, self.game_id, self.genre_id)
+
+class GameSystem(db.Model):
+    """Association table betwen Game and System."""
+
+    __tablename__ = "gamesystems"
+
+    gamesystem_id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey("games.game_id"), nullable=False)
+    system_id = db.Column(db.Integer, db.ForeignKey("system.system_id"), nullable=False)
+
+
+def init_app():
+    # So that we can use Flask-SQLAlchemy, we'll make a Flask app.
+    from flask import Flask
+    app = Flask(__name__)
+
+    connect_to_db(app)
+    print "Connected to DB."
+
+
+def connect_to_db(app):
+    """Connect the database to our Flask app."""
+
+    # Configure to use our database.
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres:///animals'
+    app.config['SQLALCHEMY_ECHO'] = False
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    db.app = app
+    db.init_app(app)
+
+
+if __name__ == "__main__":
+    # As a convenience, if we run this module interactively, it will leave
+    # you in a state of being able to work with the database directly.
+
+    # So that we can use Flask-SQLAlchemy, we'll make a Flask app.
+    from flask import Flask
+
+    app = Flask(__name__)
+
+    connect_to_db(app)
+    print "Connected to DB."
+
+    # later on move this to the server.py file and import connect_to_db and db
 
 
 
