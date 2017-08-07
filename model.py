@@ -15,7 +15,7 @@ class User(db.Model):
     username = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(50), nullable=False)
     password = db.Column(db.String(20), nullable=False)
-    account_created = db.Column(db.Datetime, nullable=False)
+    account_created = db.Column(db.DateTime, nullable=False)
 
     follower = db.relationship("Following",
                               secondary="following",
@@ -40,22 +40,18 @@ class Following(db.Model):
 
     __tablename__ = "following"
 
-    lurker_id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
-    follower = db.Column(db.String(50), db.ForeignKey("users.user_id"), nullable=False)
-    followee = db.Column(db.String(50), db.ForeignKey("users.user_id"),nullable=False)
-    following_since = db.Column(db.Datetime, nullable=False)
+    following_id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
+    follower = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
+    followee = db.Column(db.Integer, db.ForeignKey("users.user_id"),nullable=False)
+    following_since = db.Column(db.DateTime, nullable=False)
 
-    # make these different...somehow. one is the user id of the follower, other 
-    # is the user id of the followee. Sarah said you can specify this somehow
-    user = db.Relationship("User", backref=db.backref("users"))
-    user = db.Relationship("User", backref=db.backref("users"))
 
     def __repr__(self):
         """Provide useful info when printed to console"""
 
-        s = "<Lurker lurker_id=%s follower=%s followee=%s>"
+        s = "<Following following_id=%s follower=%s followee=%s>"
 
-        return s % (self.lurker_id, self.follower, self.followee)
+        return s % (self.following_id, self.follower, self.followee)
 
 class Rating(db.Model):
     """Rating model."""
@@ -67,8 +63,8 @@ class Rating(db.Model):
     game_id = db.Column(db.Integer, db.ForeignKey("games.game_id"), nullable=False)
     score = db.Column(db.Integer, nullable=False)
 
-    user = db.Relationship("User", backref=db.backref("users"))
-    game_id = db.Relationship("Game", backref=db.backref("games"))
+    user = db.relationship("User", backref=db.backref("ratings"))
+    game = db.relationship("Game", backref=db.backref("ratings"))
 
     def __repr__(self):
         """Provide useful info when printed to console"""
@@ -136,8 +132,8 @@ class UserSystem(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
     system_id = db.Column(db.Integer, db.ForeignKey("systems.system_id"), nullable=False)
 
-    user = db.Relationship("User", backref=db.backref("users"))
-    system = db.Relationship("System", backref=db.backref("systems"))
+    user = db.relationship("User", backref=db.backref("usersystems"))
+    system = db.relationship("System", backref=db.backref("usersystems"))
 
     def __repr__(self):
         """Provide useful info when printed to console"""
@@ -156,8 +152,8 @@ class GameGenre(db.Model):
     game_id = db.Column(db.Integer, db.ForeignKey("games.game_id"), nullable=False)
     genre_id = db.Column(db.Integer, db.ForeignKey("genres.genre_id"), nullable=False)
 
-    game_id = db.Relationship("Game", backref=db.backref("games"))
-    genre_id = db.Relationship("Genre", backref=db.backref("genres"))
+    game = db.relationship("Game", backref=db.backref("gamegenres"))
+    genre = db.relationship("Genre", backref=db.backref("gamegenres"))
 
 
     def __repr__(self):
@@ -174,7 +170,10 @@ class GameSystem(db.Model):
 
     gamesystem_id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
     game_id = db.Column(db.Integer, db.ForeignKey("games.game_id"), nullable=False)
-    system_id = db.Column(db.Integer, db.ForeignKey("system.system_id"), nullable=False)
+    system_id = db.Column(db.Integer, db.ForeignKey("systems.system_id"), nullable=False)
+
+    game = db.relationship("Game", backref=db.backref("gamesystems"))
+    system = db.relationship("System", backref=db.backref("gamesystems"))
 
 
 def init_app():
@@ -190,7 +189,7 @@ def connect_to_db(app):
     """Connect the database to our Flask app."""
 
     # Configure to use our database.
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres:///animals'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres:///games'
     app.config['SQLALCHEMY_ECHO'] = False
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.app = app
