@@ -25,6 +25,17 @@ def homepage():
     return render_template("homepage.html")
 
 
+@app.route("/user/<user_id>")
+def user_profile(user_id):
+    """Show user profile"""
+
+    user_info = User.query.filter_by(user_id=user_id).first()
+    system_info = UserSystem.query.filter_by(user_id=user_id).all()
+
+    return render_template("user_profile.html", user_info=user_info,
+                                                system_info=system_info)
+
+
 @app.route("/register", methods=["GET"])
 def register():
     """Show registration form"""
@@ -118,14 +129,6 @@ def do_logout():
 
     return redirect("/")
 
-
-@app.route("/user/<user_id>")
-def user_profile(user_id):
-    """Show user profile"""
-
-    user_info = User.query.filter_by(user_id=user_id).first()
-
-    return render_template("user_profile.html", user_info=user_info)
 
 #*****************************************************************************#
 

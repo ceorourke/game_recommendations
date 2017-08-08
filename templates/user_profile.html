@@ -1,9 +1,18 @@
 {% extends 'base.html' %}
 
-{% block title %}User Profile{% endblock %}
+{% block title %}{{ user_info.username }}'s' Profile{% endblock %}
 
 {% block content %}
 
-User specific stuff goes here
+<p>
+  <h3> Username: </h3>  {{ user_info.username }}        <br>
+  <h3> Email: </h3>     {{ user_info.email }}           <br>
+  <h3> User Since: </h3> {{ user_info.account_created }} <br>
+  <h3> Systems: </h3>
+
+  {% for system in system_info %}
+        {{ system.system.name }} <br>
+  {% endfor %}
+</p>
 
 {% endblock %}
