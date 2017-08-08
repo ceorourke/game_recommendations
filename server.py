@@ -7,6 +7,7 @@ from jinja2 import StrictUndefined
 from datetime import datetime
 import os
 from igdb_api_python.igdb import igdb
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 # TODO update this to be actually secret
@@ -28,7 +29,14 @@ def homepage():
 def register():
     """Show registration form"""
 
-    return render_template("registration.html")
+    platform_list = []
+
+    platforms = System.query.all()
+
+    for platform in platforms:
+        platform_list.append(platform.name)
+
+    return render_template("registration.html", platform_list=platform_list)
 
 
 @app.route("/register", methods=["POST"])
@@ -49,15 +57,17 @@ def register_process():
         #check if the email is in use
         new_user = User(username=username, email=email, password=password, 
                         account_created=account_created)
-    # TODO need to store the systems somewhere, also need to create a Jinja
-    # for loop to generate the checkboxes in the registration form
-    # but first need to figure out the API
 
         db.session.add(new_user)
         db.session.commit()
 
-        # for system in systems:
+        for system in systems:
+            # add each system to the database for the specific user
+            system_id = db.session.query(System.system_id).filter(System.name==system).first()
+            new_user_system = UserSystem(user_id=new_user.user_id, system_id=system_id)
 
+            db.session.add(new_user_system)
+            db.session.commit()
 
         # TODO probably change this to go to the user's profile page?
         flash("Successfully registered " + username + "!")
@@ -68,6 +78,45 @@ def register_process():
         # TODO probably handle this in AJAX on the form and be more specific
         # as to whether it was the username or email that failed
         return redirect("/")
+
+@app.route("/login", methods=["GET"])
+def attempt_login():
+    """Show login page"""
+
+    return render_template("login.html")
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    """Attempt to log the user in"""
+
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    existing_email = User.query.filter_by(email=email).first()
+
+    if existing_email is not None:
+        existing_password = existing_email.password
+        if existing_password == password:
+            # add user to session
+            session["user_id"] = existing_email.user_id
+
+        flash("Successfully logged in!")
+        return render_template("homepage.html")
+
+    else:
+        flash("Incorrect email.")
+        return redirect('/login')
+
+
+@app.route("/logout")
+def do_logout():
+    """Log user out."""
+
+    flash("Goodbye!")
+    session["user_id"] = ""
+
+    return redirect("/")
 
 
 @app.route("/user/<user_id>")

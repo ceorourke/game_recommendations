@@ -197,16 +197,16 @@ def connect_to_db(app):
     db.init_app(app)
 
 
-# if __name__ == "__main__":
-#     # As a convenience, if we run this module interactively, it will leave
-#     # you in a state of being able to work with the database directly.
+if __name__ == "__main__":
+    # As a convenience, if we run this module interactively, it will leave
+    # you in a state of being able to work with the database directly.
 
-#     # So that we can use Flask-SQLAlchemy, we'll make a Flask app.
-#     from flask import Flask
+    # So that we can use Flask-SQLAlchemy, we'll make a Flask app.
+    from flask import Flask
 
-#     app = Flask(__name__)
+    app = Flask(__name__)
 
-#     connect_to_db(app)
-#     print "Connected to DB."
+    connect_to_db(app)
+    print "Connected to DB."
 
     # later on move this to the server.py file and import connect_to_db and db

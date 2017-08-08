@@ -1,0 +1,43 @@
+130|Nintendo Switch
+48|PlayStation 4
+49|Xbox One
+37|Nintendo 3DS
+46|PlayStation Vita
+41|Wii U
+5|Wii
+47|Virtual Console (Nintendo)
+56|WiiWare
+4|Nintendo 64
+21|Nintendo GameCube
+19|Super Nintendo Entertainment System (SNES)
+18|Nintendo Entertainment System (NES)
+58|Super Famicom
+20|Nintendo DS
+22|Game Boy Color
+33|Game Boy
+24|Game Boy
+87|Virtual Boy
+7|PlayStation
+8|PlayStation 2
+9|PlayStation 3
+38|PlayStation Portable
+45|PlayStation Network
+11|Xbox
+12|Xbox 360
+36|Xbox Live Arcade
+92|SteamOS
+14|Mac
+6|PC (Microsoft Windows)
+23|Dreamcast
+29|Sega Mega Drive/Genesis
+30|Sega 32X
+32|Sega Saturn
+35|Sega Game Gear
+64|Sega Master System
+59|Atari 2600
+60|Atari 7800
+61|Atari Lynx
+62|Atari Jaguar
+63|Atari ST/STE
+65|Atari 8-bit
+66|Atari 5200

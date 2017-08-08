@@ -6,7 +6,14 @@
 
 Homepage stuff goes here
 
-<h3>Register</h3>
-<p><a href="/register">Register</a></p>
+{% if session.get("user_id") %}
+  <h2>Logout</h2>
+  <p><a href="/logout">Logout</a></p>
+{% else %}
+  <h2>Login or Register</h2>
+    <a href="/login">Login</a>/
+    <a href="/register">Register</a></span>
+
+{% endif %}
 
 {% endblock %}

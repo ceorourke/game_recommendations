@@ -10,12 +10,12 @@
     Username: <input type="text" name="username"><br/>
     Email: <input type="email" name="email"><br/>
     Password: <input type="password" name="password"><br/>
-    Systems Owned: 
-        <input type="checkbox" name="system" value="3ds">3DS
-        <input type="checkbox" name="system" value="switch">Switch
-        <input type="checkbox" name="system" value="wiiu">Wii U
-        <input type="checkbox" name="system" value="ps4">Playstation 4
-        <input type="checkbox" name="system" value="xbox360">Xbox 360
+    Platforms: </br>
+
+         {% for platform in platform_list %}
+            <input type="checkbox" name="systems" value="{{ platform }}">{{ platform }}
+        </br>
+        {% endfor %}
     </br></br></br>
 
     <input type="submit" value="Register">
