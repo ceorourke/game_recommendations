@@ -28,3 +28,21 @@
 92|SteamOS
 14|Mac
 6|PC (Microsoft Windows)
+13|PC DOS
+64|Sega Master System
+29|Sega Mega Drive/Genesis
+35|Sega Game Gear
+32|Sega Saturn
+23|Dreamcast
+34|Android
+39|iOS
+86|TurboGrafx-16/PC Engine
+51|Family Computer Disk System
+15|Commodore C64/128
+16|Amiga
+79|Neo Geo MVS
+80|Neo Geo AES
+119|Neo Geo Pocket
+120|Neo Geo Pocket Color
+135|Hyper Neo Geo 64
+136|Neo Geo CD
