@@ -210,3 +210,4 @@ if __name__ == "__main__":
     print "Connected to DB."
 
     # later on move this to the server.py file and import connect_to_db and db
+

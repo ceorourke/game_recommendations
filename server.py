@@ -17,7 +17,10 @@ app.jinja_env.undefined = StrictUndefined
 
 REQUEST_URL = "https://api-2445582011268.apicast.io"
 
-igdb = igdb("cf604caa11e4b850c531cd0e2c91556d")
+igdb = igdb("a215ea8dd33f4c3e384980920450bf5d")
+
+
+# old = cf604caa11e4b850c531cd0e2c91556d
 #*****************************************************************************#
 
 @app.route("/")
