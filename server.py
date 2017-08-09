@@ -16,6 +16,8 @@ app.secret_key = "SECRETSECRETSECRET"
 app.jinja_env.undefined = StrictUndefined
 
 REQUEST_URL = "https://api-2445582011268.apicast.io"
+
+igdb = igdb("cf604caa11e4b850c531cd0e2c91556d")
 #*****************************************************************************#
 
 @app.route("/")
@@ -34,6 +36,18 @@ def user_profile(user_id):
 
     return render_template("user_profile.html", user_info=user_info,
                                                 system_info=system_info)
+
+
+@app.route("/search")
+def search_game():
+    """Handle search"""
+
+    # for right now, enter 1096 which is the game_id of DK64
+    game = int(request.args.get("search"))
+    # finds the info for the game with the id 1096
+    game_info = igdb.games(game)
+
+    return render_template("game_details.html", game_info=game_info)
 
 
 @app.route("/register", methods=["GET"])
@@ -106,19 +120,19 @@ def login():
 
     existing_email = User.query.filter_by(email=email).first()
 
-    if existing_email is not None:
-        existing_password = existing_email.password
-        if existing_password == password:
+    if existing_email is not None and existing_email.password == password:
             # add user to session
-            session["user_id"] = existing_email.user_id
+        session["user_id"] = existing_email.user_id
 
         flash("Successfully logged in!")
         return render_template("homepage.html")
 
-    else:
+    elif existing_email is None:
         flash("Incorrect email.")
         return redirect('/login')
-
+    else:
+        flash("Incorrect password.")
+        return redirect('/login')
 
 @app.route("/logout")
 def do_logout():

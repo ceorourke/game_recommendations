@@ -28,16 +28,3 @@
 92|SteamOS
 14|Mac
 6|PC (Microsoft Windows)
-23|Dreamcast
-29|Sega Mega Drive/Genesis
-30|Sega 32X
-32|Sega Saturn
-35|Sega Game Gear
-64|Sega Master System
-59|Atari 2600
-60|Atari 7800
-61|Atari Lynx
-62|Atari Jaguar
-63|Atari ST/STE
-65|Atari 8-bit
-66|Atari 5200

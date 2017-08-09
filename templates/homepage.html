@@ -4,15 +4,26 @@
 
 {% block content %}
 
-Homepage stuff goes here
-
 {% if session.get("user_id") %}
-  <h2>Go to my profile</h2>
   
-  <p><a href="/user/{{  session.user_id  }}">Go!</a></p>
-  
+  <p><a href="/user/{{  session.user_id  }}">Go to my profile!</a></p>
+
+  <h2>Get a game recommendation: </h2>
+
+  <form action="/recommendation" method="GET">
+    <input type="submit" value="Gimme!">
+</form>
+
+  <h2>Search for games to rate: </h2>
+
+  <form action="/search" method="GET">
+    Game name: <input type="text" name="search">
+    <input type="submit" value="Search">
+    </form>
+
   <h2>Logout</h2>
-  <p><a href="/logout">Logout</a></p>
+    <p><a href="/logout">Logout</a></p>
+
 {% else %}
   <h2>Login or Register</h2>
     <a href="/login">Login</a>/
