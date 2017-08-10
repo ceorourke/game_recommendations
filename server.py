@@ -1,13 +1,13 @@
 
 from flask import Flask, jsonify, render_template, request, flash, redirect, session
 from flask_debugtoolbar import DebugToolbarExtension
-from model import connect_to_db, db
-from model import User, Following, Rating, Game, System, Genre, UserSystem, GameGenre, GameSystem
+from model import connect_to_db, db, User, Following, Rating, Game, System, Genre, UserSystem, GameGenre, GameSystem
 from jinja2 import StrictUndefined
 from datetime import datetime
 import os
 from igdb_api_python.igdb import igdb
 from flask_sqlalchemy import SQLAlchemy
+from correlation import pearson
 
 app = Flask(__name__)
 # TODO update this to be actually secret
@@ -45,21 +45,55 @@ def user_profile(user_id):
 def search_game():
     """Handle search, render game details page"""
 
-    # # for right now, enter 1096 which is the game_id of DK64
-    # game = int(request.args.get("search"))
-    # # finds the info for the game with the id 1096
-    # game_info = igdb.games(game)
-
-    # return render_template("game_details.html", game_info=game_info)
-
     game = request.args.get("search")
-    print game
     game_info = Game.query.filter(Game.name==game).first()
-    # name = game_info.name
     game_id = game_info.game_id
-    # game_systems = game_info.gamesystems
 
-    return render_template("game_details.html", game_info=game_info)
+    current_user = session["user_id"]
+    user1 = db.session.query(Rating.score).filter(Rating.user_id==current_user).all()
+    # user2 = get list of ratings for ... another user?
+    games = db.session.query(Game.game_id).all()
+
+    target_game = game_id
+    # get list of all user ids
+    users = db.session.query(User.user_id).all()
+
+    target_user = user2 
+    sims = {}
+
+    for i, user in enumerate(users):
+        if user != target_user and user[target_game]:
+            red_users = filt(user, target_user, games)
+            if red_users[0]:
+                sim = pearson(zip(red_users[0], red_users[1]))
+                sims[i] = sim
+
+    rating = predict(sims, users, target_game)
+    rating = math.round(rating)
+
+    return render_template("game_details.html", game_info=game_info, rating=rating)
+
+def filt(user1, user2, games):
+    """Filter down lists to only include ratings they've both done"""
+
+    result = []
+
+    users = zip(user1, user2, games)
+
+    for u1, u2, game_id in users:
+        if u1 and u2:
+            result.append((u1, u2, game_id))
+
+    return results
+
+def predict(sims, users, target_game):
+    """Predict similarity"""
+
+    pos_numerator = sum(sim * (users[i][target_game] for i, sim in sims.items() if sim >= 0))
+    neg_numerator = sum(-sim * (6 - users[i][target_game] for i, sim in sims.items() if sim <0))
+    denominator = sum(sim for i, sim in sims.items())
+
+    return (pos_numerator + neg_numerator) / denominator
 
 
 @app.route("/gamerating", methods=["POST"])

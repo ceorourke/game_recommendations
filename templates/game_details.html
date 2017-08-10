@@ -11,6 +11,8 @@
 
 {% if session.get("user_id") %}
 
+{{ rating }}
+
  <form action="/gamerating" method="POST">
         <input type="hidden" name="game_id" value="{{ game_info.game_id }}">
         Rating: 
