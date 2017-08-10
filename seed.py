@@ -89,7 +89,6 @@ def load_games():
             game_system = GameSystem(game_id=game_id, system_id=system_id)
             db.session.add(game_system)
             db.session.commit()
-        ## this isn't doing what i thought it was doing
 
 #*****************************************************************************#
 

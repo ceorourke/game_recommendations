@@ -3,11 +3,38 @@
 {% block title %}Games{% endblock %}
 
 {% block content %}
-Name:
-{{ game_info.name }} <br/>
-Systems: 
 
-Genres: 
+<a href="/">Back to homepage</a>
 
+<h3>Name:</h3>
+{{ game_info.name }} <br/><br/>
+
+{% if session.get("user_id") %}
+
+ <form action="/gamerating" method="POST">
+        <input type="hidden" name="game_id" value="{{ game_info.game_id }}">
+        Rating: 
+        <input type="radio" name="rating" value="1"> Meh
+        <input type="radio" name="rating" value="2"> It's OK
+        <input type="radio" name="rating" value="3"> Fine
+        <input type="radio" name="rating" value="4"> Good!
+        <input type="radio" name="rating" value="5"> BEST GAME EVAR
+        <br/>
+        <input type="submit" value="Submit">
+      </form>
+
+{% else %}
+    <a href="/login" method="GET">Please log in if you want to rate.</a>
+{% endif %}
+
+<h3>Systems:</h3> 
+{% for system in game_info.gamesystems %}
+    {{ system.system.name }}<br/>
+{% endfor %} <br/>
+<h3>Genres: </h3>
+{% for genre in game_info.gamegenres %}
+    {{ genre.genre.name }}<br/>
+{% endfor %} <br/>
+Add description and photo later. Photo is in "cover"
     
 {% endblock %}

@@ -13,10 +13,28 @@
   <h3> Systems: </h3>
 
   {% for system in system_info %}
-        {{ system.system.name }} <br>
+    {{ system.system.name }} <br>
   {% endfor %}
 
   <h3> Games I Like: </h3>
+  <table>
+      <tr>
+        <th>Game</th>
+        <th>Rated</th>
+      </tr>
+      <tr>
+        <td>
+            {% for game in rating_info %}
+            {{ game[0] }}<br/>
+            {% endfor %}
+        </td>
+        <td>
+            {% for game in rating_info%}
+            {{ game[1] }}<br/>
+            {% endfor %}
+        </td>
+      </tr>
+    </table>
 </p>
 
 {% endblock %}

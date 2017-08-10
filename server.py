@@ -34,14 +34,16 @@ def user_profile(user_id):
 
     user_info = User.query.filter_by(user_id=user_id).first()
     system_info = UserSystem.query.filter_by(user_id=user_id).all()
+    rating_info = db.session.query(Game.name, Rating.score).join(Rating).filter(Rating.user_id==user_id).all()
 
     return render_template("user_profile.html", user_info=user_info,
-                                                system_info=system_info)
+                                                system_info=system_info,
+                                                rating_info=rating_info)
 
 
 @app.route("/search")
 def search_game():
-    """Handle search"""
+    """Handle search, render game details page"""
 
     # # for right now, enter 1096 which is the game_id of DK64
     # game = int(request.args.get("search"))
@@ -51,9 +53,38 @@ def search_game():
     # return render_template("game_details.html", game_info=game_info)
 
     game = request.args.get("search")
+    print game
     game_info = Game.query.filter(Game.name==game).first()
+    # name = game_info.name
+    game_id = game_info.game_id
+    # game_systems = game_info.gamesystems
 
     return render_template("game_details.html", game_info=game_info)
+
+
+@app.route("/gamerating", methods=["POST"])
+def game_rating():
+    """Update or add game rating to database"""
+
+    rating = request.form.get("rating")
+    game_id = request.form.get("game_id")
+    current_user = session["user_id"]
+
+    existing_rating = Rating.query.filter_by(user_id=current_user, game_id=game_id).first()
+
+    if existing_rating is None:
+        new_rating = Rating(user_id=current_user, game_id=game_id,score=rating)
+
+        db.session.add(new_rating)
+        db.session.commit()
+
+        return redirect(request.referrer)
+
+    else:
+        existing_rating.score = rating
+        db.session.comit()
+
+        return redirect(request.referrer)
 
 
 @app.route("/register", methods=["GET"])
