@@ -19,8 +19,6 @@ REQUEST_URL = "https://api-2445582011268.apicast.io"
 
 igdb = igdb("a215ea8dd33f4c3e384980920450bf5d")
 
-
-# old = cf604caa11e4b850c531cd0e2c91556d
 #*****************************************************************************#
 
 @app.route("/")
@@ -45,10 +43,15 @@ def user_profile(user_id):
 def search_game():
     """Handle search"""
 
-    # for right now, enter 1096 which is the game_id of DK64
-    game = int(request.args.get("search"))
-    # finds the info for the game with the id 1096
-    game_info = igdb.games(game)
+    # # for right now, enter 1096 which is the game_id of DK64
+    # game = int(request.args.get("search"))
+    # # finds the info for the game with the id 1096
+    # game_info = igdb.games(game)
+
+    # return render_template("game_details.html", game_info=game_info)
+
+    game = request.args.get("search")
+    game_info = Game.query.filter(Game.name==game).first()
 
     return render_template("game_details.html", game_info=game_info)
 
