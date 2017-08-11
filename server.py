@@ -45,6 +45,9 @@ def get_similarities(target_user, target_game):
     for i, user in enumerate(users):
         if user != target_user and user[target_game]:
             red_users = filt(user, target_user, games)
+            print "This is the red_users"
+            print "This is a list with one tuple"
+            print red_users
             if red_users[0]:
                 sim = pearson(zip(red_users[0], red_users[1]))
                 sims[i] = sim
@@ -56,6 +59,7 @@ def search_game():
     print "Getting game info"
     game = request.args.get("search")
     game_info = Game.query.filter(Game.name==game).first()
+    # game_id = game_info.game_id
     game_id = games.index(game_info.game_id)
 
     print "Getting user info ..."
@@ -63,7 +67,6 @@ def search_game():
     current_user = session["user_id"]
     target_user = users[current_user-1]
     target_game = game_id
-    # get list of all user ids
 
     print "getting sims"
     sims = get_similarities(target_user, target_game)
@@ -75,9 +78,10 @@ def search_game():
     # final_rating_pred = math.round(raw_pred)
     # getting error on math.round
     # return final_rating_pred
-    return raw_pred
+    # return raw_pred
+    # return render_template("game_details.html", game_info=game_info)
 
-    # return render_template("game_details.html", game_info=game_info, rating=rating)
+    return render_template("game_details.html", game_info=game_info, raw_pred=raw_pred)
 
 def filt(user1, user2, games):
     """Filter down lists to only include ratings they've both done"""
@@ -86,10 +90,14 @@ def filt(user1, user2, games):
 
     users = zip(user1, user2, games)
 
+    print "this is users from filt"
+    print users
+
     for u1, u2, game_id in users:
         if u1 and u2:
             result.append((u1, u2, game_id))
 
+    print "this is the result from filt"
     print result
 
     return result
@@ -124,7 +132,7 @@ def game_rating():
 
     else:
         existing_rating.score = rating
-        db.session.comit()
+        db.session.commit()
 
         return redirect(request.referrer)
 
