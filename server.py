@@ -4,7 +4,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from model import connect_to_db, db, User, Following, Rating, Game, System, Genre, UserSystem, GameGenre, GameSystem
 from jinja2 import StrictUndefined
 from datetime import datetime
-import os
+import os, math
 from igdb_api_python.igdb import igdb
 from flask_sqlalchemy import SQLAlchemy
 from correlation import pearson
@@ -40,38 +40,44 @@ def user_profile(user_id):
                                                 system_info=system_info,
                                                 rating_info=rating_info)
 
-
-@app.route("/search")
-def search_game():
-    """Handle search, render game details page"""
-
-    game = request.args.get("search")
-    game_info = Game.query.filter(Game.name==game).first()
-    game_id = game_info.game_id
-
-    current_user = session["user_id"]
-    user1 = db.session.query(Rating.score).filter(Rating.user_id==current_user).all()
-    # user2 = get list of ratings for ... another user?
-    games = db.session.query(Game.game_id).all()
-
-    target_game = game_id
-    # get list of all user ids
-    users = db.session.query(User.user_id).all()
-
-    target_user = user2 
+def get_similarities(target_user, target_game):
     sims = {}
-
     for i, user in enumerate(users):
         if user != target_user and user[target_game]:
             red_users = filt(user, target_user, games)
             if red_users[0]:
                 sim = pearson(zip(red_users[0], red_users[1]))
                 sims[i] = sim
+    return sims
 
-    rating = predict(sims, users, target_game)
-    rating = math.round(rating)
+@app.route("/search")
+def search_game():
+    """Handle search, render game details page"""
+    print "Getting game info"
+    game = request.args.get("search")
+    game_info = Game.query.filter(Game.name==game).first()
+    game_id = games.index(game_info.game_id)
 
-    return render_template("game_details.html", game_info=game_info, rating=rating)
+    print "Getting user info ..."
+    
+    current_user = session["user_id"]
+    target_user = users[current_user-1]
+    target_game = game_id
+    # get list of all user ids
+
+    print "getting sims"
+    sims = get_similarities(target_user, target_game)
+    print "sims size {}".format(len(sims))
+    print "getting preds"
+    raw_pred = predict(sims, users, target_game)
+    print "raw prediction is {}".format(raw_pred)
+    print "rounding"
+    # final_rating_pred = math.round(raw_pred)
+    # getting error on math.round
+    # return final_rating_pred
+    return raw_pred
+
+    # return render_template("game_details.html", game_info=game_info, rating=rating)
 
 def filt(user1, user2, games):
     """Filter down lists to only include ratings they've both done"""
@@ -84,17 +90,19 @@ def filt(user1, user2, games):
         if u1 and u2:
             result.append((u1, u2, game_id))
 
-    return results
+    print result
+
+    return result
 
 def predict(sims, users, target_game):
     """Predict similarity"""
 
-    pos_numerator = sum(sim * (users[i][target_game] for i, sim in sims.items() if sim >= 0))
-    neg_numerator = sum(-sim * (6 - users[i][target_game] for i, sim in sims.items() if sim <0))
+    pos_numerator = sum(sim * users[i][target_game] for i, sim in sims.items() if sim >= 0)
+    neg_numerator = sum(-sim * (6 - users[i][target_game]) for i, sim in sims.items() if sim <0)
     denominator = sum(sim for i, sim in sims.items())
-
-    return (pos_numerator + neg_numerator) / denominator
-
+    print denominator   
+    result = "Need more data to predict!" if denominator == 0 else (pos_numerator + neg_numerator) / denominator
+    return result
 
 @app.route("/gamerating", methods=["POST"])
 def game_rating():
@@ -226,5 +234,7 @@ if __name__ == "__main__":
 
     connect_to_db(app)
     print "Connected to DB."
+    games = [game.game_id for game in db.session.query(Game.game_id).all()]
+    users = [[Rating.query.filter_by(user_id=user.user_id, game_id=game_id).first().score if Rating.query.filter_by(user_id=user.user_id, game_id=game_id).first() else 0 for game_id in games] for user in User.query.all()]
 
     app.run(port=5000, host='0.0.0.0')
