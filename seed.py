@@ -67,7 +67,6 @@ def load_games():
             game_id = game_info[1]
             name = game_info[2] + game_info[3]
             genre_id = game_info[4]
-            print row
 
         game = Game.query.filter_by(game_id=game_id).first()
 
@@ -79,17 +78,21 @@ def load_games():
             db.session.commit()
 
         genre_id = clean_up_list(genre_id)
-        print genre_id
 
         for genre in genre_id:
-            game_genre = GameGenre(game_id=game_id, genre_id=genre  )
-            db.session.add(game_genre)
-            db.session.commit()
+            gamegen = GameGenre.query.filter_by(game_id=game_id, genre_id=genre).first()
+            if not gamegen:
+                game_genre = GameGenre(game_id=game_id, genre_id=genre)
+                db.session.add(game_genre)
+                db.session.commit()
 
         for system in system_id:
-            game_system = GameSystem(game_id=game_id, system_id=system_id)
-            db.session.add(game_system)
-            db.session.commit()
+            gamesys = GameSystem.query.filter_by(game_id=game_id, system_id=system_id).first()
+            if not gamesys:
+                game_system = GameSystem(game_id=game_id, system_id=system_id)
+                db.session.add(game_system)
+                db.session.commit()
+
 
 def load_users():
     """Load fake users for testing from file"""
@@ -104,7 +107,6 @@ def load_users():
                     password=password, account_created=account_created)
 
         db.session.add(user)
-
         db.session.commit()
 
 def load_ratings():
@@ -121,6 +123,7 @@ def load_ratings():
             user_rating = Rating(user_id=user, game_id=game, score=rating)
             db.session.add(user_rating)
             db.session.commit()
+        print "Added ratings for user #", user[0]
 
 
 def set_val_user_id():
@@ -146,7 +149,14 @@ if __name__ == "__main__":
     db.create_all()
 
     load_systems()
+    print "Loaded systems..."
     load_genres()
+    print "Loaded genres..."
     load_games()
-    load_users()  
+    print "Loaded games..."
+    load_users()
+    print "Loaded users..."
     load_ratings()
+    print "Loaded ratings..."
+    set_val_user_id()
+    print "Seeding complete."

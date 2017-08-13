@@ -48,7 +48,7 @@ def get_recommendation():
     recommendations = []
     game_ids = db.session.query(Game.game_id).all()
     # get maybe just the first 10 game ids to test!!
-    game_ids = game_ids[0:30]
+    # game_ids = game_ids[0:30]
     print "Printing first game id"
     print game_ids[0][0]
 
@@ -83,8 +83,7 @@ def search_game():
     """Handle search, render game details page"""
     print "Getting game info"
     game = request.args.get("search")
-    game_info = Game.query.filter(Game.name==game).first()
-    # game_id = game_info.game_id
+    game_info = Game.query.filter(Game.name.like("%"+game+"%")).first()
     game_id = games.index(game_info.game_id)
 
     print "Getting user info ..."
@@ -93,20 +92,16 @@ def search_game():
     target_user = users[current_user-1]
     target_game = game_id
 
-    print "getting sims"
+    print "Getting similarities..."
     sims = get_similarities(target_user, target_game)
-    print "sims size {}".format(len(sims))
-    print "getting preds"
+    print "Sims size: {}".format(len(sims))
+    print "Getting predictions..."
     raw_pred = predict(sims, users, target_game)
-    print "raw prediction is {}".format(raw_pred)
-    print "rounding"
-    # final_rating_pred = math.round(raw_pred)
-    # getting error on math.round
-    # return final_rating_pred
-    # return raw_pred
-    # return render_template("game_details.html", game_info=game_info)
+    print "Raw prediction is {}".format(raw_pred)
+    print "Rounding..."
+    prediction = round(raw_pred, 2)
 
-    return render_template("game_details.html", game_info=game_info, raw_pred=raw_pred)
+    return render_template("game_details.html", game_info=game_info, prediction=prediction)
 
 
 def filt(user1, user2, games):
@@ -116,14 +111,14 @@ def filt(user1, user2, games):
 
     users = zip(user1, user2, games)
 
-    print "this is users from filt"
+    print "This is users from filt():..."
     print users
 
     for u1, u2, game_id in users:
         if u1 and u2:
             result.append((u1, u2, game_id))
 
-    print "this is the result from filt"
+    print "This is the result from filt():..."
     print result
 
     return result
@@ -137,7 +132,6 @@ def get_similarities(target_user, target_game):
         if user != target_user and user[target_game]:
             red_users = filt(user, target_user, games)
             print "This is the red_users"
-            print "This is a list with one tuple"
             print red_users
             if red_users[0]:
                 sim = pearson(zip(red_users[0], red_users[1]))
@@ -151,6 +145,7 @@ def predict(sims, users, target_game):
     pos_numerator = sum(sim * users[i][target_game] for i, sim in sims.items() if sim >= 0)
     neg_numerator = sum(-sim * (6 - users[i][target_game]) for i, sim in sims.items() if sim <0)
     denominator = sum(sim for i, sim in sims.items())
+    print "Printing denominator from predict()"
     print denominator   
     result = "Need more data to predict!" if denominator == 0 else (pos_numerator + neg_numerator) / denominator
     
@@ -226,7 +221,6 @@ def register_process():
             db.session.add(new_user_system)
             db.session.commit()
 
-        # TODO probably change this to go to the user's profile page?
         flash("Successfully registered " + username + "!")
         return redirect("/")
 

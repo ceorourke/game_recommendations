@@ -11,7 +11,7 @@
 
 {% if session.get("user_id") %}
 
-{{ raw_pred }} what I think you'll rate it 
+{{ prediction }} is what I think you'll rate it!
 
  <form action="/gamerating" method="POST">
         <input type="hidden" name="game_id" value="{{ game_info.game_id }}">
