@@ -8,6 +8,7 @@ import os, math
 from igdb_api_python.igdb import igdb
 from flask_sqlalchemy import SQLAlchemy
 from correlation import pearson
+from random import choice
 
 app = Flask(__name__)
 # TODO update this to be actually secret
@@ -40,18 +41,42 @@ def user_profile(user_id):
                                                 system_info=system_info,
                                                 rating_info=rating_info)
 
-def get_similarities(target_user, target_game):
-    sims = {}
-    for i, user in enumerate(users):
-        if user != target_user and user[target_game]:
-            red_users = filt(user, target_user, games)
-            print "This is the red_users"
-            print "This is a list with one tuple"
-            print red_users
-            if red_users[0]:
-                sim = pearson(zip(red_users[0], red_users[1]))
-                sims[i] = sim
-    return sims
+@app.route("/recommendation")
+def get_recommendation():
+    """Show a game the user would probably like"""
+
+    recommendations = []
+    game_ids = db.session.query(Game.game_id).all()
+    # get maybe just the first 10 game ids to test!!
+    game_ids = game_ids[0:30]
+    print "Printing first game id"
+    print game_ids[0][0]
+
+    current_user = session["user_id"]
+    target_user = users[current_user-1]
+    # target_game = game_ids[0]
+
+    for target_game in game_ids:
+        print "Printing target_game"
+        print target_game
+        sims = get_similarities(target_user, target_game[0])
+        raw_pred = predict(sims, users, target_game)
+
+        if raw_pred > 2.0:
+
+            recommendation = (target_game, raw_pred)
+            recommendations.append(recommendation)
+
+    one_rec = choice(recommendations)
+    game_info = Game.query.filter(Game.game_id==one_rec[0]).first()
+    game_info = game_info.name
+    print "Printing one_rec"
+    print one_rec
+    print type(one_rec)
+    percentage = raw_pred * 5
+
+    return render_template("recommendation.html", game_info=game_info, percentage=percentage)
+
 
 @app.route("/search")
 def search_game():
@@ -83,6 +108,7 @@ def search_game():
 
     return render_template("game_details.html", game_info=game_info, raw_pred=raw_pred)
 
+
 def filt(user1, user2, games):
     """Filter down lists to only include ratings they've both done"""
 
@@ -102,6 +128,23 @@ def filt(user1, user2, games):
 
     return result
 
+def get_similarities(target_user, target_game):
+    """Get the similarity between users based on ratings"""
+
+    sims = {}
+    for i, user in enumerate(users):
+        print "Printing in get_similarities"
+        if user != target_user and user[target_game]:
+            red_users = filt(user, target_user, games)
+            print "This is the red_users"
+            print "This is a list with one tuple"
+            print red_users
+            if red_users[0]:
+                sim = pearson(zip(red_users[0], red_users[1]))
+                sims[i] = sim
+    return sims
+
+
 def predict(sims, users, target_game):
     """Predict similarity"""
 
@@ -110,7 +153,9 @@ def predict(sims, users, target_game):
     denominator = sum(sim for i, sim in sims.items())
     print denominator   
     result = "Need more data to predict!" if denominator == 0 else (pos_numerator + neg_numerator) / denominator
+    
     return result
+
 
 @app.route("/gamerating", methods=["POST"])
 def game_rating():
@@ -243,6 +288,8 @@ if __name__ == "__main__":
     connect_to_db(app)
     print "Connected to DB."
     games = [game.game_id for game in db.session.query(Game.game_id).all()]
-    users = [[Rating.query.filter_by(user_id=user.user_id, game_id=game_id).first().score if Rating.query.filter_by(user_id=user.user_id, game_id=game_id).first() else 0 for game_id in games] for user in User.query.all()]
+    users = [[Rating.query.filter_by(user_id=user.user_id, game_id=game_id
+              ).first().score if Rating.query.filter_by(user_id=user.user_id, 
+                                        game_id=game_id).first() else 0 for game_id in games] for user in User.query.all()]
 
     app.run(port=5000, host='0.0.0.0')

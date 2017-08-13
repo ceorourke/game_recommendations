@@ -1,9 +1,10 @@
 """Seeds system data into db"""
 
 from sqlalchemy import func
-from model import System, Genre, Game, GameGenre, GameSystem
+from model import System, Genre, Game, GameGenre, GameSystem, User, Rating
 from model import connect_to_db, db
 from server import app
+from random import randint
 
 #*****************************************************************************#
 
@@ -56,7 +57,7 @@ def load_games():
     Game.query.delete()
     GameGenre.query.delete()
 
-    for row in open("seed_data/games.txt"):
+    for row in open("seed_data/games_test.txt"):
         row = row.rstrip()
         try: 
             system_id, game_id, name, genre_id = row.split("|")
@@ -90,6 +91,51 @@ def load_games():
             db.session.add(game_system)
             db.session.commit()
 
+def load_users():
+    """Load fake users for testing from file"""
+
+    User.query.delete()
+
+    for row in open("seed_data/MOCK_DATA_test.csv"):
+        row = row.rstrip()
+        user_id, username, email, password, account_created = row.split(",")
+
+        user = User(user_id=user_id, username=username, email=email, 
+                    password=password, account_created=account_created)
+
+        db.session.add(user)
+
+        db.session.commit()
+
+def load_ratings():
+    """Load fake ratings for testing"""
+
+    Rating.query.delete()
+
+    users = db.session.query(User.user_id).all()
+    games = db.session.query(Game.game_id).all()
+
+    for user in users:
+        for game in games:
+            rating = randint(1,5)
+            user_rating = Rating(user_id=user, game_id=game, score=rating)
+            db.session.add(user_rating)
+            db.session.commit()
+
+
+def set_val_user_id():
+    """Set value for the next user_id after seeding database"""
+
+    # Get the Max user_id in the database
+    result = db.session.query(func.max(User.user_id)).one()
+    max_id = int(result[0])
+
+    # Set the value for the next user_id to be max_id + 1
+    query = "SELECT setval('users_user_id_seq', :new_id)"
+    db.session.execute(query, {'new_id': max_id + 1})
+    db.session.commit()
+
+
 #*****************************************************************************#
 
 
@@ -101,4 +147,6 @@ if __name__ == "__main__":
 
     load_systems()
     load_genres()
-    load_games()    
+    load_games()
+    load_users()  
+    load_ratings()
