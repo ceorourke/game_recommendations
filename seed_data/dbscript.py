@@ -29,4 +29,41 @@ def get_all_games():
             for game in platform_games:
                 print "{platform_id}|{id}|{name}|{genres}".format(platform_id=platform_id, name = game["name"].encode('utf-8'), genres=game.get("genres", []), id=game["id"])
 
-get_all_games()
+# get_all_games()
+
+def get_switch_games():
+    platforms = [130]
+
+    for platform_id in platforms: 
+
+        game_ids = igdb.platforms({
+            'ids':platform_id,
+            'fields' : ['games','name']
+        })[0]["games"]
+
+        num_games = len(game_ids)
+
+        num_iterations = (num_games / 1000) + 1
+
+        for i in range(num_iterations):
+
+            platform_games = igdb.games({
+                'ids':game_ids[i*1000:i*1000+1000],
+                'fields' : ['id', 'name', 'genres', 'storyline', 'summary', 'cover', 'screenshots', 'videos']
+            })
+
+            for game in platform_games:
+                try: 
+                    print "{platform_id}|{id}|{name}|{genres}|{storyline}|{summary}|{cover}|{screenshots}|{videos}".format(platform_id=platform_id, 
+                            name=game["name"].encode('utf-8'), 
+                            genres=game.get("genres", []), 
+                            storyline=game["storyline"],
+                            summary=game["summary"],
+                            id=game["id"],
+                            cover=game["cover"],
+                            screenshots=game["screenshots"],
+                            videos=game["videos"])                
+
+get_switch_games()
+
+

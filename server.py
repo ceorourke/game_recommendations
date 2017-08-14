@@ -34,75 +34,120 @@ def user_profile(user_id):
     """Show user profile"""
 
     user_info = User.query.filter_by(user_id=user_id).first()
+    account_created = user_info.account_created
+    account_created = str(account_created)[:11]
     system_info = UserSystem.query.filter_by(user_id=user_id).all()
     rating_info = db.session.query(Game.name, Rating.score).join(Rating).filter(Rating.user_id==user_id).all()
 
     return render_template("user_profile.html", user_info=user_info,
                                                 system_info=system_info,
-                                                rating_info=rating_info)
+                                                rating_info=rating_info,
+                                                account_created=account_created)
 
 @app.route("/recommendation")
 def get_recommendation():
     """Show a game the user would probably like"""
 
     recommendations = []
-    game_ids = db.session.query(Game.game_id).all()
-    # get maybe just the first 10 game ids to test!!
-    # game_ids = game_ids[0:30]
-    print "Printing first game id"
-    print game_ids[0][0]
+    games_info = []
 
-    current_user = session["user_id"]
-    target_user = users[current_user-1]
-    # target_game = game_ids[0]
+    for game in games:
+        sims = get_all_similarities(game)
+        raw_pred = predict(sims, users, game)
 
-    for target_game in game_ids:
-        print "Printing target_game"
-        print target_game
-        sims = get_similarities(target_user, target_game[0])
-        raw_pred = predict(sims, users, target_game)
+        if raw_pred > 3.0:
 
-        if raw_pred > 2.0:
-
-            recommendation = (target_game, raw_pred)
+            recommendation = (game, raw_pred)
             recommendations.append(recommendation)
 
-    one_rec = choice(recommendations)
-    game_info = Game.query.filter(Game.game_id==one_rec[0]).first()
-    game_info = game_info.name
-    print "Printing one_rec"
-    print one_rec
-    print type(one_rec)
-    percentage = raw_pred * 5
+    for rec in recommendations:
+        one_game_info = Game.query.filter(Game.game_id==rec[0]).first()
+        name = one_game_info.name
+        percentage = round(rec[1] * 20, 2)
+        games_info.append({"name": name, "percentage": percentage})
+    print "Printing games info"
+    print games_info
 
-    return render_template("recommendation.html", game_info=game_info, percentage=percentage)
+    return render_template("recommendation.html", games_info=games_info)
 
+@app.route("/search.json")
+def search_for_game():
+    """This is me testing out doing the below function in AJAX"""
 
-@app.route("/search")
-def search_game():
-    """Handle search, render game details page"""
-    print "Getting game info"
-    game = request.args.get("search")
+    game = request.args.get("searchField")
+    print "Printing in /search.json, game"
+    print game
     game_info = Game.query.filter(Game.name.like("%"+game+"%")).first()
     game_id = games.index(game_info.game_id)
-
-    print "Getting user info ..."
     
-    current_user = session["user_id"]
-    target_user = users[current_user-1]
-    target_game = game_id
+    # current_user = session["user_id"]
+    # target_user = users[current_user-1]
 
-    print "Getting similarities..."
-    sims = get_similarities(target_user, target_game)
-    print "Sims size: {}".format(len(sims))
-    print "Getting predictions..."
-    raw_pred = predict(sims, users, target_game)
-    print "Raw prediction is {}".format(raw_pred)
-    print "Rounding..."
-    prediction = round(raw_pred, 2)
+    # target_game = game_id
 
-    return render_template("game_details.html", game_info=game_info, prediction=prediction)
+    # sims = get_similarities(target_user, target_game)
+    # raw_pred = predict(sims, users, target_game)
+    # prediction = round(raw_pred, 2)
 
+    # return jsonify(game_info, prediction)
+    game_stuff = {"game_id": game_id, "name": game_info.name}
+
+    return jsonify(game_stuff)
+
+
+# @app.route("/search")
+# def search_game():
+#     """Handle search, render game details page"""
+#     print "Getting game info"
+#     game = request.args.get("search")
+#     game_info = Game.query.filter(Game.name.like("%"+game+"%")).first()
+#     game_id = games.index(game_info.game_id)
+
+#     # print "Getting user info ..."
+    
+#     # current_user = session["user_id"]
+#     # print "Printing users"
+#     # print users[current_user]
+#     # target_user = users[current_user-1]
+#     # target_game = game_id
+
+#     # print "Getting similarities..."
+#     # sims = get_similarities(target_user, target_game)
+#     # print "Sims size: {}".format(len(sims))
+#     # print "Getting predictions..."
+#     # raw_pred = predict(sims, users, target_game)
+#     # print "Raw prediction is {}".format(raw_pred)
+#     # print "Rounding..."
+#     # prediction = round(raw_pred, 2)
+
+
+#     # return render_template("game_details.html", game_info=game_info, 
+#     #                        prediction=prediction)
+
+#     return render_template("game_details.html", game_info=game_info)
+
+
+def filt_all(user1, user2, games):
+    """Filter down lists to only include ratings they've both done"""
+
+    result = []
+
+    user1_ratings = [score for game_id, score in sorted(users[user1].items())]
+    user2_ratings = [score for game_id, score in sorted(users[user2].items())]
+
+    users_filt = zip(user1_ratings, user2_ratings, games)
+
+    print "This is users from filt():..."
+    print users_filt
+
+    for u1, u2, game_id in users_filt:
+        if u1 and u2:
+            result.append((u1, u2, game_id))
+
+    print "This is the result from filt():..."
+    print result
+
+    return result
 
 def filt(user1, user2, games):
     """Filter down lists to only include ratings they've both done"""
@@ -125,6 +170,7 @@ def filt(user1, user2, games):
 
 def get_similarities(target_user, target_game):
     """Get the similarity between users based on ratings"""
+    # import pdb; pdb.set_trace()
 
     sims = {}
     for i, user in enumerate(users):
@@ -135,7 +181,27 @@ def get_similarities(target_user, target_game):
             print red_users
             if red_users[0]:
                 sim = pearson(zip(red_users[0], red_users[1]))
+                print "I'm about to print the sim"
+                print sim
                 sims[i] = sim
+    return sims
+
+def get_all_similarities(target_game):
+    """Get the similarity between users based on ratings"""
+    # import pdb; pdb.set_trace()
+
+    sims = {}
+    for user in users.items():
+        print "Printing in get_similarities"
+        if user[0] != session['user_id'] and user[1][target_game]:
+            red_users = filt_all(user[0], session['user_id'], games)
+            print "This is the red_users"
+            print red_users
+            if red_users[0]:
+                sim = pearson(zip(red_users[0], red_users[1]))
+                print "I'm about to print the sim"
+                print sim
+                sims[user[0]] = sim
     return sims
 
 
@@ -282,8 +348,29 @@ if __name__ == "__main__":
     connect_to_db(app)
     print "Connected to DB."
     games = [game.game_id for game in db.session.query(Game.game_id).all()]
-    users = [[Rating.query.filter_by(user_id=user.user_id, game_id=game_id
-              ).first().score if Rating.query.filter_by(user_id=user.user_id, 
-                                        game_id=game_id).first() else 0 for game_id in games] for user in User.query.all()]
+    # users = [[Rating.query.filter_by(user_id=user.user_id, game_id=game_id
+    #           ).first().score if Rating.query.filter_by(user_id=user.user_id, 
+    #                                     game_id=game_id).first() else 0 for game_id in games] for user in User.query.all()]
+
+    users = {}
+
+    for user in User.query.all():
+        userrating = {}
+        for game in games:
+            gamerating = Rating.query.filter_by(game_id=game, user_id=user.user_id).first()
+            if gamerating:
+                userrating[game] = gamerating.score
+            else:
+                userrating[game] = 0
+
+        users[user.user_id] = userrating    
 
     app.run(port=5000, host='0.0.0.0')
+
+
+
+
+
+
+
+

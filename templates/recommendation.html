@@ -6,8 +6,11 @@
 
 <a href="/">Back to homepage</a>
 <br/>
-Why don't you try: {{ game_info }}<br/>
-It's a {{ percentage }}% match!
+Why don't you try: <br/>
+{% for game in games_info %}
 
+{{ game.name }}
+It's a {{ game.percentage }}% match!<br/>
+{% endfor %}
     
 {% endblock %}

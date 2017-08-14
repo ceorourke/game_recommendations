@@ -6,28 +6,47 @@
 
 {% if session.get("user_id") %}
   
-  <p><a href="/user/{{  session.user_id  }}">Go to my profile!</a></p>
+  <h3><a href="/user/{{  session.user_id  }}">Go to my profile!</a></h3><br/>
 
-  <h2>Get a game recommendation: </h2>
+  <h3>Get a game recommendation</h3>
 
-  <form action="/recommendation" method="GET">
-    <input type="submit" value="Gimme!">
-</form>
+    <form action="/recommendation" method="GET">
+      <input type="submit" value="Gimme!">
+    </form>
 
-  <h2>Search for games to rate: </h2>
+  <h3>Search for games to rate</h3>
 
   <form action="/search" method="GET">
     Game name: <input type="text" name="search">
     <input type="submit" value="Search">
     </form>
+<br/>
+  This is the AJAX version WIP:
 
-  <h2>Logout</h2>
-    <p><a href="/logout">Logout</a></p>
+  <form id="search-form">
+    <div class="form-group">
+      <h3>Search for games to rate</h3>
+      <input type="text" name="search-ajax" id="search-field">
+      <button id="search-btn" type="submit">Search</button>
+    </div>
+  </form>
+
+  <div id="game-info"></div>
+
+  <script src="http://code.jquery.com/jquery.js"></script>
+  <script src="/static/games.js"></script>
+
+  <h3><a href="/logout">Logout</a></h3>
 
 {% else %}
-  <h2>Login or Register</h2>
-    <a href="/login">Login</a>/
-    <a href="/register">Register</a></span>
+  <h2>Login or <a href="/register">Register</a></h2>
+    <div id="login">
+      <form action="/login" method="POST">
+        Email: <input type="email" name="email"><br/>
+        Password: <input type="password" name="password"><br/>
+        <input type="submit" value="Login">
+      </form>
+    </div>
 
 {% endif %}
 
