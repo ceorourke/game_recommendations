@@ -3,15 +3,16 @@
 {% block title %}Games and Stuff{% endblock %}
 
 {% block content %}
-
-{% if session.get("user_id") %}
   
   <h3><a href="/user/{{  session.user_id  }}">Go to my profile!</a></h3><br/>
 
   <h3>Get a game recommendation</h3>
 
     <form action="/recommendation" method="GET">
+
+
       <input type="submit" value="Gimme!">
+
     </form>
 
   <h3>Search for games to rate</h3>
@@ -37,17 +38,5 @@
   <script src="/static/games.js"></script>
 
   <h3><a href="/logout">Logout</a></h3>
-
-{% else %}
-  <h2>Login or <a href="/register">Register</a></h2>
-    <div id="login">
-      <form action="/login" method="POST">
-        Email: <input type="email" name="email"><br/>
-        Password: <input type="password" name="password"><br/>
-        <input type="submit" value="Login">
-      </form>
-    </div>
-
-{% endif %}
 
 {% endblock %}

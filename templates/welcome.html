@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}Games and Stuff{% endblock %}
+
+{% block content %}
+
+  <h2>Login or <a href="/register">Register</a></h2>
+    <div id="login">
+      <form action="/login" method="POST">
+        Email: <input type="email" name="email"><br/>
+        Password: <input type="password" name="password"><br/>
+        <input type="submit" value="Login">
+      </form>
+    </div>
+
+{% endblock %}

@@ -21,12 +21,22 @@ REQUEST_URL = "https://api-2445582011268.apicast.io"
 igdb = igdb("a215ea8dd33f4c3e384980920450bf5d")
 
 #*****************************************************************************#
-
 @app.route("/")
+def welcome():
+    """Show welcome page"""
+
+    return render_template("welcome.html")
+
+
+@app.route("/homepage")
 def homepage():
     """Show homepage"""
 
-    return render_template("homepage.html")
+    user_id = session.user_id
+    system_info = UserSystem.query.filter_by(user_id=user_id).all()
+    genre_info = Genre.query.all()
+
+    return render_template("homepage.html", system_info=system_info, genre_info=genre_info)
 
 
 @app.route("/user/<user_id>")
@@ -43,6 +53,7 @@ def user_profile(user_id):
                                                 system_info=system_info,
                                                 rating_info=rating_info,
                                                 account_created=account_created)
+
 
 @app.route("/recommendation")
 def get_recommendation():
@@ -70,27 +81,24 @@ def get_recommendation():
 
     return render_template("recommendation.html", games_info=games_info)
 
+
 @app.route("/search.json")
 def search_for_game():
     """This is me testing out doing the below function in AJAX"""
 
     game = request.args.get("searchField")
-    print "Printing in /search.json, game"
-    print game
     game_info = Game.query.filter(Game.name.like("%"+game+"%")).first()
     game_id = games.index(game_info.game_id)
-    
-    # current_user = session["user_id"]
-    # target_user = users[current_user-1]
+    systems = db.session.query(System.name).join(GameSystem).filter(GameSystem.game_id==game_id).all()
+    print "Printing systems in /search.json"
+    print systems
+    genres = db.session.query(Genre.name).join(GameGenre).filter(GameGenre.game_id==game_id).all()
+    print "Printing genres in /search.json"
+    print genres
 
-    # target_game = game_id
-
-    # sims = get_similarities(target_user, target_game)
-    # raw_pred = predict(sims, users, target_game)
-    # prediction = round(raw_pred, 2)
-
-    # return jsonify(game_info, prediction)
-    game_stuff = {"game_id": game_id, "name": game_info.name}
+    game_stuff = {"name": game_info.name, 
+                  "systems": systems,
+                  "genres": genres}
 
     return jsonify(game_stuff)
 
