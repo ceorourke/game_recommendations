@@ -62,26 +62,6 @@ def get_switch_games():
             })
         with open('testfile.json', 'w') as fp:
             json.dump(platform_games, fp)
-        # json.dump(platform_games, open(‘testfile.json’, ‘w’)) 
-            # move all of this to seed.py and instead of printing, instantiate a game object
-            # for game in platform_games:
-            #     for field in fields:
-            #         if field not in game:
-            #             if field == "videos":
-            #                 game["videos"] = [{"video_id": "None"}]
-            #             else:
-            #                 game[field] = "None"
-            #     print "{platform_id}|{id}|{name}|{genres}|{storyline}|{summary}|{cover}|{screenshots}|{videos}".format(platform_id=platform_id, 
-            #             name=game["name"], 
-            #             genres=game.get("genres", []), 
-            #             storyline=game["storyline"],
-            #             summary=game["summary"],
-            #             id=game["id"],
-            #             cover=game["cover"],
-            #             screenshots=game["screenshots"],
-            #             videos=game["videos"][0]["video_id"])
-
-        # file.close()
 
 get_switch_games()
 

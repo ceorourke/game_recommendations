@@ -85,8 +85,6 @@ class Game(db.Model):
     storyline = db.Column(db.String(10000), nullable=True)
     summary = db.Column(db.String(10000), nullable=True)
     cover =  db.Column(db.String(10000), nullable=True)
-    screenshots = db.Column(db.String(10000), nullable=True)
-    videos = db.Column(db.String(10000), nullable=True)
 
     def __repr__(self):
         """Provide useful info when printed to console"""
@@ -94,6 +92,45 @@ class Game(db.Model):
         s = "<Game game_id=%s name=%s>"
 
         return s % (self.game_id, self.name)
+
+class Screenshot(db.Model):
+    """Screenshot model"""
+
+    __tablename__ = "screenshots"
+
+    screenshot_id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
+    screenshot_url = db.Column(db.String(100), nullable=False)
+    screenshot_width = db.Column(db.Integer, nullable=False)
+    screenshot_height = db.Column(db.Integer, nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey("games.game_id"), nullable=False)
+
+    game = db.relationship("Game", backref=db.backref("screenshots"))
+
+    def __repr__(self):
+        """Provide useful info when printed to console"""
+
+        s = "<Screenshot screenshot_id=%s screenshot_url%s screenshot_width=%s screenshot_height%s>"
+
+        return s % (self.screenshot_id, self.screenshot_url, self.screenshot_width, self.screenshot_height)
+
+class Video(db.Model):
+    """Video model"""
+
+    __tablename__ = "videos"
+
+    video_id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey("games.game_id"), nullable=False)
+    video_url = db.Column(db.String(100), nullable=False)
+    video_name = db.Column(db.String(100), nullable=False)
+
+    game = db.relationship("Game", backref=db.backref("videos"))
+
+    def __repr__(self):
+        """Provide useful info when printed to console"""
+
+        s = "<Video video_id=%s video_url=%s video_name%s>"
+
+        return s % (self.video_id, self.video_url, self.video_name)
 
 class System(db.Model):
     """System model."""
