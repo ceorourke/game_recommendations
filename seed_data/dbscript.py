@@ -1,6 +1,11 @@
-
+# encoding=utf8
+import codecs
 from igdb_api_python.igdb import igdb
 igdb = igdb("a215ea8dd33f4c3e384980920450bf5d")
+import json
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 
 def get_all_games():
@@ -33,6 +38,7 @@ def get_all_games():
 
 def get_switch_games():
     platforms = [130]
+    # add all platforms later! this is just switch games for testing
 
     for platform_id in platforms: 
 
@@ -44,6 +50,9 @@ def get_switch_games():
         num_games = len(game_ids)
 
         num_iterations = (num_games / 1000) + 1
+        fields = ['id', 'name', 'genres', 'storyline', 'summary', 'cover', 'screenshots', 'videos']
+
+        # file = codecs.open('test.txt', 'w', 'utf-8')
 
         for i in range(num_iterations):
 
@@ -51,18 +60,28 @@ def get_switch_games():
                 'ids':game_ids[i*1000:i*1000+1000],
                 'fields' : ['id', 'name', 'genres', 'storyline', 'summary', 'cover', 'screenshots', 'videos']
             })
+        with open('testfile.json', 'w') as fp:
+            json.dump(platform_games, fp)
+        # json.dump(platform_games, open(‘testfile.json’, ‘w’)) 
+            # move all of this to seed.py and instead of printing, instantiate a game object
+            # for game in platform_games:
+            #     for field in fields:
+            #         if field not in game:
+            #             if field == "videos":
+            #                 game["videos"] = [{"video_id": "None"}]
+            #             else:
+            #                 game[field] = "None"
+            #     print "{platform_id}|{id}|{name}|{genres}|{storyline}|{summary}|{cover}|{screenshots}|{videos}".format(platform_id=platform_id, 
+            #             name=game["name"], 
+            #             genres=game.get("genres", []), 
+            #             storyline=game["storyline"],
+            #             summary=game["summary"],
+            #             id=game["id"],
+            #             cover=game["cover"],
+            #             screenshots=game["screenshots"],
+            #             videos=game["videos"][0]["video_id"])
 
-            for game in platform_games:
-                try: 
-                    print "{platform_id}|{id}|{name}|{genres}|{storyline}|{summary}|{cover}|{screenshots}|{videos}".format(platform_id=platform_id, 
-                            name=game["name"].encode('utf-8'), 
-                            genres=game.get("genres", []), 
-                            storyline=game["storyline"],
-                            summary=game["summary"],
-                            id=game["id"],
-                            cover=game["cover"],
-                            screenshots=game["screenshots"],
-                            videos=game["videos"])                
+        # file.close()
 
 get_switch_games()
 

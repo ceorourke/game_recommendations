@@ -10,6 +10,19 @@
 
     <form action="/recommendation" method="GET">
 
+    <b>Filter by system (optional): </b><br/>
+
+      {% for system in system_info %}
+        <input type="checkbox" name="systems" value="{{ system.system.system_id }}">{{ system.system.name }}
+      {% endfor %}<br/><br/>
+
+      <b>Filter by genre (optional): </b><br/>
+
+        {% for genre in genre_info %}
+          <input type="checkbox" name="genres" value="{{ genre.genre_id }}">{{ genre.name }}
+        {% endfor %}
+      <br/><br/>
+
 
       <input type="submit" value="Gimme!">
 
@@ -22,20 +35,6 @@
     <input type="submit" value="Search">
     </form>
 <br/>
-  This is the AJAX version WIP:
-
-  <form id="search-form">
-    <div class="form-group">
-      <h3>Search for games to rate</h3>
-      <input type="text" name="search-ajax" id="search-field">
-      <button id="search-btn" type="submit">Search</button>
-    </div>
-  </form>
-
-  <div id="game-info"></div>
-
-  <script src="http://code.jquery.com/jquery.js"></script>
-  <script src="/static/games.js"></script>
 
   <h3><a href="/logout">Logout</a></h3>
 

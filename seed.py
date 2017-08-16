@@ -1,10 +1,11 @@
 """Seeds system data into db"""
 
 from sqlalchemy import func
-from model import System, Genre, Game, GameGenre, GameSystem, User, Rating
+from model import System, Genre, Game, GameGenre, GameSystem, User, Rating, UserSystem
 from model import connect_to_db, db
 from server import app
 from random import randint
+import json
 
 #*****************************************************************************#
 
@@ -57,41 +58,61 @@ def load_games():
     Game.query.delete()
     GameGenre.query.delete()
 
-    for row in open("seed_data/games_test.txt"):
-        row = row.rstrip()
-        try: 
-            system_id, game_id, name, genre_id = row.split("|")
-        except:
-            game_info = row.split("|")
-            system_id = game_info[0]
-            game_id = game_info[1]
-            name = game_info[2] + game_info[3]
-            genre_id = game_info[4]
+    platform_games = json.load(open('seed_data/testfile.json'))
+    fields = ['id', 'name', 'genres', 'storyline', 'summary', 'cover', 'screenshots', 'videos']
 
-        game = Game.query.filter_by(game_id=game_id).first()
+    for game in platform_games:
+        for field in fields:
+            if field not in game:
+                if field == "videos":
+                    game["videos"] = [{"video_id": "None"}]
+                else:
+                    game[field] = "None"
 
-        if not game:
+        game = Game(game_id=game["id"], name=game["name"], storyline=game["storyline"],
+                    summary=game["summary"], cover=game["cover"], 
+                    screenshots=game["screenshots"], videos=game["videos"][0]["video_id"])
 
-            game = Game(game_id=game_id, name=name)
+        db.session.add(game)
+        db.session.commit()
 
-            db.session.add(game)
+    # for row in open("seed_data/games_test.txt"):
+    #     row = row.rstrip()
+    #     try: 
+    #         system_id, game_id, name, genre_id = row.split("|")
+    #     except:
+    #         game_info = row.split("|")
+    #         system_id = game_info[0]
+    #         game_id = game_info[1]
+    #         name = game_info[2] + game_info[3]
+    #         genre_id = game_info[4]
+
+    #     game = Game.query.filter_by(game_id=game_id).first()
+
+    #     if not game:
+
+    #         game = Game(game_id=game_id, name=name)
+
+    #         db.session.add(game)
+    #         db.session.commit()
+    genre_id = game["genre_id"]
+    system_id = game["system_id"]
+
+    genre_id = clean_up_list(genre_id)
+
+    for genre in genre_id:
+        gamegen = GameGenre.query.filter_by(game_id=game_id, genre_id=genre).first()
+        if not gamegen:
+            game_genre = GameGenre(game_id=game_id, genre_id=genre)
+            db.session.add(game_genre)
             db.session.commit()
 
-        genre_id = clean_up_list(genre_id)
-
-        for genre in genre_id:
-            gamegen = GameGenre.query.filter_by(game_id=game_id, genre_id=genre).first()
-            if not gamegen:
-                game_genre = GameGenre(game_id=game_id, genre_id=genre)
-                db.session.add(game_genre)
-                db.session.commit()
-
-        for system in system_id:
-            gamesys = GameSystem.query.filter_by(game_id=game_id, system_id=system_id).first()
-            if not gamesys:
-                game_system = GameSystem(game_id=game_id, system_id=system_id)
-                db.session.add(game_system)
-                db.session.commit()
+    for system in system_id:
+        gamesys = GameSystem.query.filter_by(game_id=game_id, system_id=system_id).first()
+        if not gamesys:
+            game_system = GameSystem(game_id=game_id, system_id=system_id)
+            db.session.add(game_system)
+            db.session.commit()
 
 
 def load_users():
@@ -108,6 +129,19 @@ def load_users():
 
         db.session.add(user)
         db.session.commit()
+
+def load_usersystems():
+    """Make all users own systems"""
+
+    users = db.session.query(User.user_id).all()
+    systems = db.session.query(System.system_id).all()
+
+    for user in users:
+        for system in systems:
+            usersystem = UserSystem(user_id=user, system_id=system)
+            db.session.add(usersystem)
+            db.session.commit()
+        print "Added systems for user #", user[0]
 
 def load_ratings():
     """Load fake ratings for testing"""
@@ -156,6 +190,8 @@ if __name__ == "__main__":
     print "Loaded games..."
     load_users()
     print "Loaded users..."
+    load_usersystems()
+    print "Loaded systems for users"
     load_ratings()
     print "Loaded ratings..."
     set_val_user_id()

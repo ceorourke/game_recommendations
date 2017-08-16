@@ -32,8 +32,10 @@ def welcome():
 def homepage():
     """Show homepage"""
 
-    user_id = session.user_id
+    user_id = session["user_id"]
     system_info = UserSystem.query.filter_by(user_id=user_id).all()
+    # print "System info"
+    # print system_info
     genre_info = Genre.query.all()
 
     return render_template("homepage.html", system_info=system_info, genre_info=genre_info)
@@ -62,7 +64,21 @@ def get_recommendation():
     recommendations = []
     games_info = []
 
-    for game in games:
+    systems = request.args.getlist("systems")
+    print "Printing systems checked by user"
+    print systems
+    print "Printing genres checked by user"
+    genres = request.args.getlist("genres")
+
+    filt_games = db.session.query(Game.game_id).join(GameSystem, GameGenre).filter(GameSystem.system_id.in_(systems),GameGenre.genre_id.in_(genres)).all()    
+    # print "Printing filtered games by system"
+    print filt_games
+    # print filt_game_by_gen
+    filt_games = [game[0] for game in filt_games]
+
+    for game in filt_games:
+        # if game in filt_games:
+
         sims = get_all_similarities(game)
         raw_pred = predict(sims, users, game)
 
@@ -76,63 +92,63 @@ def get_recommendation():
         name = one_game_info.name
         percentage = round(rec[1] * 20, 2)
         games_info.append({"name": name, "percentage": percentage})
-    print "Printing games info"
-    print games_info
+    # print "Printing games info"
+    # print games_info
 
     return render_template("recommendation.html", games_info=games_info)
 
 
-@app.route("/search.json")
-def search_for_game():
-    """This is me testing out doing the below function in AJAX"""
+# @app.route("/search.json")
+# def search_for_game():
+#     """This is me testing out doing the below function in AJAX"""
 
-    game = request.args.get("searchField")
-    game_info = Game.query.filter(Game.name.like("%"+game+"%")).first()
-    game_id = games.index(game_info.game_id)
-    systems = db.session.query(System.name).join(GameSystem).filter(GameSystem.game_id==game_id).all()
-    print "Printing systems in /search.json"
-    print systems
-    genres = db.session.query(Genre.name).join(GameGenre).filter(GameGenre.game_id==game_id).all()
-    print "Printing genres in /search.json"
-    print genres
-
-    game_stuff = {"name": game_info.name, 
-                  "systems": systems,
-                  "genres": genres}
-
-    return jsonify(game_stuff)
-
-
-# @app.route("/search")
-# def search_game():
-#     """Handle search, render game details page"""
-#     print "Getting game info"
-#     game = request.args.get("search")
+#     game = request.args.get("searchField")
 #     game_info = Game.query.filter(Game.name.like("%"+game+"%")).first()
 #     game_id = games.index(game_info.game_id)
+#     systems = db.session.query(System.name).join(GameSystem).filter(GameSystem.game_id==game_id).all()
+#     print "Printing systems in /search.json"
+#     print systems
+#     genres = db.session.query(Genre.name).join(GameGenre).filter(GameGenre.game_id==game_id).all()
+#     print "Printing genres in /search.json"
+#     print genres
 
-#     # print "Getting user info ..."
+#     game_stuff = {"name": game_info.name, 
+#                   "systems": systems,
+#                   "genres": genres}
+
+#     return jsonify(game_stuff)
+
+
+@app.route("/search")
+def search_game():
+    """Handle search, render game details page"""
+    print "Getting game info"
+    game = request.args.get("search")
+    game_info = Game.query.filter(Game.name.like("%"+game+"%")).first()
+    game_id = games.index(game_info.game_id)
+
+    # print "Getting user info ..."
     
-#     # current_user = session["user_id"]
-#     # print "Printing users"
-#     # print users[current_user]
-#     # target_user = users[current_user-1]
-#     # target_game = game_id
+    # current_user = session["user_id"]
+    # print "Printing users"
+    # print users[current_user]
+    # target_user = users[current_user-1]
+    # target_game = game_id
 
-#     # print "Getting similarities..."
-#     # sims = get_similarities(target_user, target_game)
-#     # print "Sims size: {}".format(len(sims))
-#     # print "Getting predictions..."
-#     # raw_pred = predict(sims, users, target_game)
-#     # print "Raw prediction is {}".format(raw_pred)
-#     # print "Rounding..."
-#     # prediction = round(raw_pred, 2)
+    # print "Getting similarities..."
+    # sims = get_similarities(target_user, target_game)
+    # print "Sims size: {}".format(len(sims))
+    # print "Getting predictions..."
+    # raw_pred = predict(sims, users, target_game)
+    # print "Raw prediction is {}".format(raw_pred)
+    # print "Rounding..."
+    # prediction = round(raw_pred, 2)
 
 
-#     # return render_template("game_details.html", game_info=game_info, 
-#     #                        prediction=prediction)
+    # return render_template("game_details.html", game_info=game_info, 
+    #                        prediction=prediction)
 
-#     return render_template("game_details.html", game_info=game_info)
+    return render_template("game_details.html", game_info=game_info)
 
 
 def filt_all(user1, user2, games):
@@ -145,15 +161,15 @@ def filt_all(user1, user2, games):
 
     users_filt = zip(user1_ratings, user2_ratings, games)
 
-    print "This is users from filt():..."
-    print users_filt
+    # print "This is users from filt():..."
+    # print users_filt
 
     for u1, u2, game_id in users_filt:
         if u1 and u2:
             result.append((u1, u2, game_id))
 
-    print "This is the result from filt():..."
-    print result
+    # print "This is the result from filt():..."
+    # print result
 
     return result
 
@@ -164,15 +180,15 @@ def filt(user1, user2, games):
 
     users = zip(user1, user2, games)
 
-    print "This is users from filt():..."
-    print users
+    # print "This is users from filt():..."
+    # print users
 
     for u1, u2, game_id in users:
         if u1 and u2:
             result.append((u1, u2, game_id))
 
-    print "This is the result from filt():..."
-    print result
+    # print "This is the result from filt():..."
+    # print result
 
     return result
 
@@ -182,15 +198,15 @@ def get_similarities(target_user, target_game):
 
     sims = {}
     for i, user in enumerate(users):
-        print "Printing in get_similarities"
+        # print "Printing in get_similarities"
         if user != target_user and user[target_game]:
             red_users = filt(user, target_user, games)
-            print "This is the red_users"
-            print red_users
+            # print "This is the red_users"
+            # print red_users
             if red_users[0]:
                 sim = pearson(zip(red_users[0], red_users[1]))
-                print "I'm about to print the sim"
-                print sim
+                # print "I'm about to print the sim"
+                # print sim
                 sims[i] = sim
     return sims
 
@@ -200,15 +216,15 @@ def get_all_similarities(target_game):
 
     sims = {}
     for user in users.items():
-        print "Printing in get_similarities"
+        # print "Printing in get_similarities"
         if user[0] != session['user_id'] and user[1][target_game]:
             red_users = filt_all(user[0], session['user_id'], games)
-            print "This is the red_users"
-            print red_users
+            # print "This is the red_users"
+            # print red_users
             if red_users[0]:
                 sim = pearson(zip(red_users[0], red_users[1]))
-                print "I'm about to print the sim"
-                print sim
+                # print "I'm about to print the sim"
+                # print sim
                 sims[user[0]] = sim
     return sims
 
@@ -219,8 +235,8 @@ def predict(sims, users, target_game):
     pos_numerator = sum(sim * users[i][target_game] for i, sim in sims.items() if sim >= 0)
     neg_numerator = sum(-sim * (6 - users[i][target_game]) for i, sim in sims.items() if sim <0)
     denominator = sum(sim for i, sim in sims.items())
-    print "Printing denominator from predict()"
-    print denominator   
+    # print "Printing denominator from predict()"
+    # print denominator   
     result = "Need more data to predict!" if denominator == 0 else (pos_numerator + neg_numerator) / denominator
     
     return result
@@ -321,17 +337,19 @@ def login():
     existing_email = User.query.filter_by(email=email).first()
 
     if existing_email is not None and existing_email.password == password:
-            # add user to session
+        # add user to session
         session["user_id"] = existing_email.user_id
 
         flash("Successfully logged in!")
-        return render_template("homepage.html")
+        return redirect('/homepage')
 
     elif existing_email is None:
+        print "Incorrect email"
         flash("Incorrect email.")
         return redirect('/login')
     else:
         flash("Incorrect password.")
+        print "Incorrect password"
         return redirect('/login')
 
 @app.route("/logout")
