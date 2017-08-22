@@ -7,8 +7,9 @@ from datetime import datetime
 import os, math
 from igdb_api_python.igdb import igdb
 from flask_sqlalchemy import SQLAlchemy
-from helper_functions import pearson, filt_all
+from helper_functions import get_all_similarities, filt_all, pearson, predict
 from random import choice
+from sqlalchemy import func
 
 app = Flask(__name__)
 # TODO update this to be actually secret
@@ -58,33 +59,48 @@ def user_profile(user_id):
 @app.route("/recommendation")
 def get_recommendation():
     """Show a game the user would probably like"""
-
-    recommendations = []
     games_info = []
+    # count how many games the user has rated
+    user_id = session["user_id"]
+    num_games =  db.session.query(func.count(Rating.user_id)).filter(Rating.user_id == user_id).first()
+    num_games = int(num_games[0])
+    print num_games
+    if num_games >= 10:
 
-    systems = request.args.getlist("systems")
-    genres = request.args.getlist("genres")
+        recommendations = []
 
-    filt_games = db.session.query(Game.game_id).join(GameSystem, GameGenre).filter(GameSystem.system_id.in_(systems),GameGenre.genre_id.in_(genres)).all()    
+        systems = request.args.getlist("systems")
+        genres = request.args.getlist("genres")
 
-    filt_games = [game[0] for game in filt_games]
+        filt_games = (db.session.query(Game.game_id)
+                                .join(GameSystem, GameGenre)
+                                .filter(GameSystem.system_id.in_(systems),
+                                        GameGenre.genre_id.in_(genres))
+                                .all())    
 
-    for game in filt_games:
-        sims = get_all_similarities(game)
-        raw_pred = predict(sims, users, game)
+        filt_games = [game[0] for game in filt_games]
 
-        if raw_pred > 3.0:
-            recommendation = (game, raw_pred)
-            recommendations.append(recommendation)
-    for rec in recommendations:
-        one_game_info = Game.query.filter(Game.game_id==rec[0]).first()
-        name = one_game_info.name
-        if isinstance(rec[1], (str, unicode)) == False:
-            percentage = round(rec[1] * 20, 2)
-        else:
-            percentage = rec[1]
-        games_info.append({"name": name, "percentage": percentage})
+        for game in filt_games:
+            sims = get_all_similarities(game, users, games, user_id)
+            raw_pred = predict(sims, users, game)
 
+            if raw_pred > 3.0:
+                recommendation = (game, raw_pred)
+                recommendations.append(recommendation)
+        for rec in recommendations:
+            one_game_info = Game.query.filter(Game.game_id==rec[0]).first()
+            name = one_game_info.name
+            if isinstance(rec[1], (str, unicode)) == False:
+                percentage = round(rec[1] * 20, 2)
+            else:
+                percentage = rec[1]
+            games_info.append({"name": name, "percentage": percentage})
+    else:
+        games_info.append(num_games) 
+
+    # games_info has name and percentage
+    print "Printing games info"
+    print games_info
     return render_template("recommendation.html", games_info=games_info)
 
 
@@ -192,6 +208,7 @@ def register_process():
 
         db.session.add(new_user)
         db.session.commit()
+        get_user_rating(users, new_user, games)
 
         for system in systems:
             # add each system to the database for the specific user
@@ -208,9 +225,8 @@ def register_process():
         flash("Username or email already in use")
         # TODO probably handle this in AJAX on the form and be more specific
         # as to whether it was the username or email that failed
-        get_user_rating(users, new_user, games)
 
-        return redirect("/")
+    return redirect("/")
 
 @app.route("/login", methods=["GET"])
 def attempt_login():
@@ -251,6 +267,7 @@ def do_logout():
 
     return redirect("/")
 
+
 def get_user_rating(users, user, games):
     """Get all ratings for all users"""
 
@@ -260,59 +277,17 @@ def get_user_rating(users, user, games):
         gamerating = Rating.query.filter_by(game_id=game, user_id=user.user_id).first()
         if gamerating:
             userrating[game] = gamerating.score
+            print "Printing game rating in get_user_rating"
+            print userrating[game]
         else:
             userrating[game] = 0
 
-            users[user.user_id] = userrating
-
-    print users
+        users[user.user_id] = userrating
+    print "Pretty printing users from get_user_rating"
+    from pprint import pprint
+    pprint(users)
 
     return users
-
-def get_similarities(target_user, target_game):
-    """Get the similarity between users based on ratings"""
-
-    sims = {}
-
-    for i, user in enumerate(users):
-        if user != target_user and user[target_game]:
-            red_users = filt(user, target_user, games)
-            if red_users[0]:
-                sim = pearson(zip(red_users[0], red_users[1]))
-                sims[i] = sim
-
-    return sims
-
-def get_all_similarities(target_game):
-    """Get the similarity between users based on ratings"""
-
-    sims = {}
-
-    for user in users.items():
-        if user[0] != session['user_id'] and user[1][target_game]:
-            print "Made it!"
-            red_users = filt_all(user[0], session['user_id'], games)
-
-            sim = pearson(zip(red_users[0], red_users[1]))
-            sims[user[0]] = sim
-
-    print sims
-
-    return sims
-
-
-def predict(sims, users, target_game):
-    """Predict similarity"""
-
-    pos_numerator = sum(sim * users[i][target_game] for i, sim in sims.items() if sim >= 0)
-    neg_numerator = sum(-sim * (6 - users[i][target_game]) for i, sim in sims.items() if sim <0)
-    denominator = sum(sim for i, sim in sims.items())
- 
-    result = "Need more data to predict!" if denominator == 0 else (pos_numerator + neg_numerator) / denominator
-    print "Printing prediction result"
-    print denominator
-    print result
-    return result
 
 #*****************************************************************************#
 
@@ -329,14 +304,16 @@ if __name__ == "__main__":
     games = [game.game_id for game in db.session.query(Game.game_id).all()]
 
     users = {}
+    print "Printing all users"
     print User.query.all()
     for user in User.query.all():
         users = get_user_rating(users, user, games)
 
     from pprint import pprint
     # pprint(users)
+    print "Printing games"
     print games
-        
+
 
     app.run(port=5000, host='0.0.0.0')
 

@@ -5,11 +5,17 @@
 {% block content %}
 
 <!-- <a href="/homepage">Back to homepage</a>
- --><br/>
-<b>Why don't you try: </b><br/><br/>
-{% for game in games_info %}
-    {{ game.name }}
+ -->
+ {% if games_info[0] < 10 %}
+    <b>Please rate at least 10 games to get a recommendation.</b></br>
+    You've rated <b>{{ games_info[0] }}</b> games.
+
+{% else %}
+    <b>Why don't you try: </b><br/><br/>
+    {% for game in games_info %}
+        {{ game.name }}
         It's a {{ game.percentage }}% match!<br/>
-{% endfor %}
+    {% endfor %}
+{% endif %}
     
 {% endblock %}
