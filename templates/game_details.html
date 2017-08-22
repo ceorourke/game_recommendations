@@ -1,19 +1,32 @@
 {% extends 'base.html' %}
 
-{% block title %}Games{% endblock %}
+{% block title %}
+
+{% if game_info %}
+
+{{ game_info.name }} Details
+
+{% else %}
+
+Game Not Found
+
+{% endif %}
+
+{% endblock %}
 
 {% block content %}
 
-<a href="/homepage">Back to homepage</a>
+<!-- <a href="/homepage">Back to homepage</a>
+ -->
+{% if game_info %}
 
-<h3>Name:</h3>
-{{ game_info.name }} <br/><br/>
+    <h3>{{ game_info.name }}</h3><br/>
 
-{% if session.get("user_id") %}
+    {% if rating %}
+        You rated this: {{ rating.score }}
+    {% endif %}
 
-
-
- <form action="/gamerating" method="POST">
+     <form action="/gamerating" method="POST">
         <input type="hidden" name="game_id" value="{{ game_info.game_id }}">
         Rating: 
         <input type="radio" name="rating" value="1"> Meh
@@ -21,22 +34,86 @@
         <input type="radio" name="rating" value="3"> Fine
         <input type="radio" name="rating" value="4"> Good!
         <input type="radio" name="rating" value="5"> BEST GAME EVAR
-        <br/>
         <input type="submit" value="Submit">
-      </form>
+    </form>
+
+    <h3>Systems:</h3> 
+    {% for system in game_info.gamesystems %}
+        {{ system.system.name }}<br/>
+    {% endfor %} <br/>
+
+    <h3>Genres: </h3>
+    {% for genre in game_info.gamegenres %}
+        {{ genre.genre.name }}<br/>
+    {% endfor %} <br/>
+
+
+    {% if game_info.cover != None %}
+    <img src="{{ game_info.cover }}" style="width:100px;">
+    {% endif %}<br/><br/>
+    
+    {{ game_info.summary }} <br/><br/>
+
+    {% if game_info.storyline != None %}
+        {{ game_info.storyline }}
+    {% endif %}<br/><br/>
+
+    {% if game_info.videos != None %}
+        {% for video in game_info.videos %}
+            {{ video.video_name }} <br/>
+
+              <iframe width="420" height="315" allowfullscreen
+
+              src="http://www.youtube.com/embed/{{ video.video_url}} ">
+          </iframe>
+          <br/>
+      {% endfor %}
+      {% endif %}
+
+
+    {% if game_info.screenshots != None %}
+        {% for screenshot in game_info.screenshots %}
+            <img src="{{ screenshot.screenshot_url }}" style="width:{{ screenshot.screenshot_width }}px height:{{ screenshot.screenshot_height }};">
+        {% endfor %}
+    {% endif %}<br/><br/>
 
 {% else %}
-    <a href="/login" method="GET">Please log in if you want to rate.</a>
-{% endif %}
+<br/><br/>
 
-<h3>Systems:</h3> 
-{% for system in game_info.gamesystems %}
-    {{ system.system.name }}<br/>
-{% endfor %} <br/>
-<h3>Genres: </h3>
-{% for genre in game_info.gamegenres %}
-    {{ genre.genre.name }}<br/>
-{% endfor %} <br/>
-Add description and photo later. Photo is in "cover"
-    
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+
+ <p>No game found by that name. Please try again. </p>
+
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+<i class="fa fa-gamepad" aria-hidden="true"></i>
+<i class="fa fa-frown-o" aria-hidden="true"></i>
+
+
+{% endif %}
 {% endblock %}

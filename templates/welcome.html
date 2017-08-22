@@ -1,8 +1,6 @@
-{% extends 'base.html' %}
-
-{% block title %}Games and Stuff{% endblock %}
-
-{% block content %}
+{% for message in get_flashed_messages() %}
+    {{ message }}
+{% endfor %}
 
   <h2>Login or <a href="/register">Register</a></h2>
     <div id="login">
@@ -12,5 +10,3 @@
         <input type="submit" value="Login">
       </form>
     </div>
-
-{% endblock %}

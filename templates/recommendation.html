@@ -4,13 +4,12 @@
 
 {% block content %}
 
-<a href="/homepage">Back to homepage</a>
-<br/>
+<!-- <a href="/homepage">Back to homepage</a>
+ --><br/>
 <b>Why don't you try: </b><br/><br/>
 {% for game in games_info %}
-
-{{ game.name }}
-It's a {{ game.percentage }}% match!<br/>
+    {{ game.name }}
+        It's a {{ game.percentage }}% match!<br/>
 {% endfor %}
     
 {% endblock %}

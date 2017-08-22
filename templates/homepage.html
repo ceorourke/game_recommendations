@@ -3,20 +3,21 @@
 {% block title %}Games and Stuff{% endblock %}
 
 {% block content %}
-  
-  <h3><a href="/user/{{  session.user_id  }}">Go to my profile!</a></h3><br/>
 
+  
+<!--   <h3><a href="/user/{{  session.user_id  }}">Go to my profile!</a></h3><br/>
+ -->
   <h3>Get a game recommendation</h3>
 
     <form action="/recommendation" method="GET">
 
-    <b>Filter by system (optional): </b><br/>
+    <b>Filter by system: </b><br/>
 
       {% for system in system_info %}
         <input type="checkbox" name="systems" value="{{ system.system.system_id }}">{{ system.system.name }}
       {% endfor %}<br/><br/>
 
-      <b>Filter by genre (optional): </b><br/>
+      <b>Filter by genre: </b><br/>
 
         {% for genre in genre_info %}
           <input type="checkbox" name="genres" value="{{ genre.genre_id }}">{{ genre.name }}
@@ -26,7 +27,7 @@
 
       <input type="submit" value="Gimme!">
 
-    </form>
+<!--     </form>
 
   <h3>Search for games to rate</h3>
 
@@ -35,7 +36,7 @@
     <input type="submit" value="Search">
     </form>
 <br/>
-
-  <h3><a href="/logout">Logout</a></h3>
-
+ -->
+<!--   <h3><a href="/logout">Logout</a></h3>
+ -->
 {% endblock %}

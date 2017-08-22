@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ user_info.username }}'s' Profile{% endblock %}
+{% block title %}{{ user_info.username }}'s Profile{% endblock %}
 
 {% block content %}
 
-<a href="/homepage">Back to homepage</a>
-
+<!-- <a href="/homepage">Back to homepage</a>
+ -->
 <p>
   <h3> Username: </h3>  {{ user_info.username }}        <br>
   <h3> Email: </h3>     {{ user_info.email }}           <br>
@@ -25,7 +25,7 @@
       <tr>
         <td>
             {% for game in rating_info %}
-            {{ game[0] }}<br/>
+            <a href="/games/{{ game[2] }} ">{{ game[0] }} </a><br/>
             {% endfor %}
         </td>
         <td>

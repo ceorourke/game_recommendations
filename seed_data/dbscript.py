@@ -38,6 +38,15 @@ def get_all_games():
 
 def get_switch_games():
     platforms = [130]
+
+
+    systems_json = igdb.platforms({
+        'ids':platforms,
+        'fields' : 'games'
+    })
+
+    with open('systemsfile.json', 'w') as fp:
+            json.dump(systems_json, fp)
     # add all platforms later! this is just switch games for testing
 
     for platform_id in platforms: 

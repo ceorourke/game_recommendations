@@ -54,25 +54,19 @@ def clean_up_list(x):
 
 def load_games():
     """Load games from games.txt into database"""
-    import pprint
-    printer = pprint.PrettyPrinter()
-    # delete info in case this is run twice, won't dupe data"""
+
+    # delete info in case this is run twice, won't dupe data
     Game.query.delete()
     GameGenre.query.delete()
 
     platform_games = json.load(open('seed_data/testfile.json'))
+    system_ids = json.load(open('seed_data/systemsfile.json'))
+
     fields = ['id', 'name', 'genres', 'storyline', 'summary', 'cover', 'screenshots', 'videos']
 
     for game in platform_games:
-        print "Printing game"
-        printer.pprint(game)
-        # for field in fields:
-        #     if field not in game:
-        #         game[field] = "None"
         if game.get("screenshots"):
             for screenshot in game["screenshots"]:
-                print "Printing screenshot"
-                print screenshot
                 screenshot = Screenshot(screenshot_url=screenshot["url"],
                                          screenshot_width=screenshot["width"],
                                          screenshot_height=screenshot["height"],
@@ -82,8 +76,6 @@ def load_games():
 
         if game.get("videos"):
             for video in game["videos"]:
-                print "Printing videos"
-                print video
                 video =  Video(game_id=game["id"],
                                video_url=video["video_id"],
                                video_name=video["name"])
@@ -99,31 +91,8 @@ def load_games():
                     summary=game.get("summary"), cover=cover)
 
         db.session.add(new_game)
-        # db.session.add(video)
-        # db.session.add(game)
         db.session.commit()
 
-    # for row in open("seed_data/games_test.txt"):
-    #     row = row.rstrip()
-    #     try: 
-    #         system_id, game_id, name, genre_id = row.split("|")
-    #     except:
-    #         game_info = row.split("|")
-    #         system_id = game_info[0]
-    #         game_id = game_info[1]
-    #         name = game_info[2] + game_info[3]
-    #         genre_id = game_info[4]
-
-    #     game = Game.query.filter_by(game_id=game_id).first()
-
-    #     if not game:
-
-    #         game = Game(game_id=game_id, name=name)
-
-    #         db.session.add(game)
-    #         db.session.commit()
-
-        # genre_id = clean_up_list(genre_ids)
         if game.get("genres"):
             genre_ids = game["genres"]
             for genre in genre_ids:
@@ -132,15 +101,14 @@ def load_games():
                     game_genre = GameGenre(game_id=game["id"], genre_id=genre)
                     db.session.add(game_genre)
 
-        if game.get("systems"):
-            system_id = game["systems"]
-            for system in system_id:
-                gamesys = GameSystem.query.filter_by(game_id=game["id"], system_id=system).first()
-                if not gamesys:
-                    game_system = GameSystem(game_id=game["id"], system_id=system)
-                    db.session.add(game_system)
+    for system in system_ids:
+        for game in system["games"]:
+            gamesys = GameSystem.query.filter_by(game_id=game, system_id=system["id"]).first()
+            if not gamesys:
+                game_system = GameSystem(game_id=game, system_id=system["id"])
+                db.session.add(game_system)
 
-        db.session.commit()
+    db.session.commit()
 
 
 def load_users():
