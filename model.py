@@ -238,7 +238,7 @@ def connect_to_db(app, location="postgres:///games"):
     db.app = app
     db.init_app(app)
 
-def example_data(app):
+def example_data():
     """Load fake db with data for testing."""
 
     from datetime import datetime

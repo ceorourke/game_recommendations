@@ -21,10 +21,11 @@ Game Not Found
 {% if game_info %}
 
     <h3>{{ game_info.name }}</h3><br/>
-
+    <div id="rated">
     {% if rating %}
         You rated this: {{ rating.score }}
     {% endif %}
+    </div>
 
      <form action="/gamerating" method="POST">
         <input type="hidden" name="game_id" value="{{ game_info.game_id }}">
