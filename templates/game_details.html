@@ -28,14 +28,14 @@ Game Not Found
     </div>
 
      <form action="/gamerating" method="POST">
-        <input type="hidden" name="game_id" value="{{ game_info.game_id }}">
+        <input type="hidden" id="gameId" name="game_id" value="{{ game_info.game_id }}">
         Rating: 
         <input type="radio" name="rating" value="1"> Meh
         <input type="radio" name="rating" value="2"> It's OK
         <input type="radio" name="rating" value="3"> Fine
         <input type="radio" name="rating" value="4"> Good!
         <input type="radio" name="rating" value="5"> BEST GAME EVAR
-        <input type="submit" value="Submit">
+        <input type="submit" id="submit-btn" value="Submit">
     </form>
 
     <h3>Systems:</h3> 
@@ -117,4 +117,6 @@ Game Not Found
 
 
 {% endif %}
+<script src="http://code.jquery.com/jquery.js"></script>
+<script src="/static/rating.js"></script>
 {% endblock %}

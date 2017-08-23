@@ -148,7 +148,7 @@ def show_game_details(game_id):
     return render_template("game_details.html", game_info=game_info, rating=rating)
 
 
-@app.route("/gamerating", methods=["POST"])
+@app.route("/gamerating.json", methods=["POST"])
 def game_rating():
     """Update or add game rating to database"""
 
@@ -164,14 +164,16 @@ def game_rating():
         db.session.add(new_rating)
         db.session.commit()
 
-        return redirect(request.referrer)
+        
+        # return redirect(request.referrer)
 
     else:
         existing_rating.score = rating
         db.session.commit()
 
-        return redirect(request.referrer)
+        # return redirect(request.referrer)
 
+    return jsonify({"rating": rating})
 
 @app.route("/register", methods=["GET"])
 def register():
@@ -277,15 +279,15 @@ def get_user_rating(users, user, games):
         gamerating = Rating.query.filter_by(game_id=game, user_id=user.user_id).first()
         if gamerating:
             userrating[game] = gamerating.score
-            print "Printing game rating in get_user_rating"
-            print userrating[game]
+            # print "Printing game rating in get_user_rating"
+            # print userrating[game]
         else:
             userrating[game] = 0
 
         users[user.user_id] = userrating
-    print "Pretty printing users from get_user_rating"
-    from pprint import pprint
-    pprint(users)
+    # print "Pretty printing users from get_user_rating"
+    # from pprint import pprint
+    # pprint(users)
 
     return users
 
@@ -304,15 +306,15 @@ if __name__ == "__main__":
     games = [game.game_id for game in db.session.query(Game.game_id).all()]
 
     users = {}
-    print "Printing all users"
-    print User.query.all()
+    # print "Printing all users"
+    # print User.query.all()
     for user in User.query.all():
         users = get_user_rating(users, user, games)
 
-    from pprint import pprint
-    # pprint(users)
-    print "Printing games"
-    print games
+    # from pprint import pprint
+    # # pprint(users)
+    # print "Printing games"
+    # print games
 
 
     app.run(port=5000, host='0.0.0.0')

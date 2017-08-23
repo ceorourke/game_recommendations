@@ -15,8 +15,8 @@ from math import sqrt
 def get_all_similarities(target_game, users, games, user_id):
     """Get the similarity between users based on ratings"""
 
-    print "Printing inputs of get_all_similarities"
-    print target_game
+    # print "Printing inputs of get_all_similarities"
+    # print target_game
 
     sims = {}
 
@@ -34,16 +34,16 @@ def get_all_similarities(target_game, users, games, user_id):
             sim = pearson(red_users)
             sims[user[0]] = sim
 
-    print "Printing sims from get_all_similarities"
-    print sims
+    # print "Printing sims from get_all_similarities"
+    # print sims
 
     return sims
 
 def filt_all(user1, user2, games, users):
     """Filter down lists to only include ratings they've both done"""
-    print "Printing users in filt_all"
-    from pprint import pprint
-    pprint(users)
+    # print "Printing users in filt_all"
+    # from pprint import pprint
+    # pprint(users)
     # print users
 
     result = []
@@ -65,8 +65,8 @@ def filt_all(user1, user2, games, users):
         if u1 and u2:
             result.append((u1, u2, game_id))
 
-    print "Printing result from filt_all"
-    print result
+    # print "Printing result from filt_all"
+    # print result
 
     return result
 
@@ -75,8 +75,8 @@ def pearson(pairs):
 
     Using a set of pairwise ratings, produces a Pearson similarity rating.
     """
-    print "Printing pearson pairs"
-    print pairs
+    # print "Printing pearson pairs"
+    # print pairs
     series_1 = [float(pair[0]) for pair in pairs]
     series_2 = [float(pair[1]) for pair in pairs]
 
@@ -99,26 +99,26 @@ def pearson(pairs):
 
     if denominator == 0:
         return 0
-    print "Printing pearson result"
-    print numerator / denominator
+    # print "Printing pearson result"
+    # print numerator / denominator
 
     return numerator / denominator
 
 def predict(sims, users, target_game):
     """Predict similarity"""
 
-    print "Printing inputs from predict"
-    print sims
+    # print "Printing inputs from predict"
+    # print sims
     pos_numerator = sum(sim * users[i][target_game] for i, sim in sims.items() if sim >= 0)
     neg_numerator = sum(-sim * (6 - users[i][target_game]) for i, sim in sims.items() if sim <0)
     denominator = sum(abs(sim) for i, sim in sims.items())
  
     result = "Need more data to predict!" if denominator == 0 else (pos_numerator + neg_numerator) / denominator
     
-    print "Printing denominator from predict"
-    print denominator
-    print "Printing result from predict"
-    print result
+    # print "Printing denominator from predict"
+    # print denominator
+    # print "Printing result from predict"
+    # print result
 
     return result
 
