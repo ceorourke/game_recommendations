@@ -19,7 +19,7 @@ app.jinja_env.undefined = StrictUndefined
 
 REQUEST_URL = "https://api-2445582011268.apicast.io"
 
-igdb = igdb("a215ea8dd33f4c3e384980920450bf5d")
+# igdb = igdb("a215ea8dd33f4c3e384980920450bf5d")
 
 #*****************************************************************************#
 @app.route("/")
@@ -37,7 +37,8 @@ def homepage():
     system_info = UserSystem.query.filter_by(user_id=user_id).all()
     genre_info = Genre.query.all()
 
-    return render_template("homepage.html", system_info=system_info, genre_info=genre_info)
+    return render_template("homepage.html", system_info=system_info, 
+                                            genre_info=genre_info)
 
 
 @app.route("/user/<user_id>")
@@ -48,25 +49,63 @@ def user_profile(user_id):
     account_created = user_info.account_created
     account_created = str(account_created)[:11]
     system_info = UserSystem.query.filter_by(user_id=user_id).all()
-    rating_info = db.session.query(Game.name, Rating.score, Game.game_id).join(Rating).filter(Rating.user_id==user_id).all()
+    rating_info = (db.session.query(Game.name, Rating.score, Game.game_id)
+                             .join(Rating).filter(Rating.user_id==user_id)
+                             .all())
 
     return render_template("user_profile.html", user_info=user_info,
                                                 system_info=system_info,
                                                 rating_info=rating_info,
-                                                account_created=account_created)
+                                                account_created=account_created,
+                                                user_id=user_id)
+
+@app.route("/userprofile.json")
+def user_genre_data():
+    """Return data about user interests"""
+
+    user_id = int(request.args.get("user_id"))
+
+    user_ratings = Rating.query.filter_by(user_id=user_id).all()
+    print user_ratings
+    user_rated_games = [(rating.game, rating.score) for rating in user_ratings]
+ 
+    gamegenres_matrix = [(game.gamegenres, score) for game, score in user_rated_games]
+
+    label_data = []
+    for gamegenres, score in gamegenres_matrix: 
+        for gamegenre in gamegenres:
+            label_data.append((gamegenre.genre.name, score))
+    label_data = label_data
+
+    genre_score = {}
+    for genre, score in label_data:
+        if not genre in genre_score:
+            genre_score[genre] = [score]
+        else:
+            genre_score[genre].append(score)
+
+    results = {"labels": [], "weights": []}
+    for genre, scores in genre_score.items():
+        results["labels"].append(genre)
+        results["weights"].append(sum(scores)/float(len(scores)))
+
+    print results
+    return jsonify(results)
 
 
 @app.route("/recommendation")
 def get_recommendation():
     """Show a game the user would probably like"""
+
     games_info = []
     # count how many games the user has rated
     user_id = session["user_id"]
-    num_games =  db.session.query(func.count(Rating.user_id)).filter(Rating.user_id == user_id).first()
+    num_games =  (db.session.query(func.count(Rating.user_id))
+                            .filter(Rating.user_id == user_id)
+                            .first())
     num_games = int(num_games[0])
-    print num_games
-    if num_games >= 10:
 
+    if num_games >= 10:
         recommendations = []
 
         systems = request.args.getlist("systems")
@@ -90,11 +129,14 @@ def get_recommendation():
         for rec in recommendations:
             one_game_info = Game.query.filter(Game.game_id==rec[0]).first()
             name = one_game_info.name
+            game_id = one_game_info.game_id
             if isinstance(rec[1], (str, unicode)) == False:
                 percentage = round(rec[1] * 20, 2)
             else:
                 percentage = rec[1]
-            games_info.append({"name": name, "percentage": percentage})
+            games_info.append({"name": name, 
+                               "percentage": percentage,
+                               "game_id": game_id})
     else:
         games_info.append(num_games) 
 
@@ -102,27 +144,6 @@ def get_recommendation():
     print "Printing games info"
     print games_info
     return render_template("recommendation.html", games_info=games_info)
-
-
-# @app.route("/search.json")
-# def search_for_game():
-#     """This is me testing out doing the below function in AJAX"""
-
-#     game = request.args.get("searchField")
-#     game_info = Game.query.filter(Game.name.like("%"+game+"%")).first()
-#     game_id = games.index(game_info.game_id)
-#     systems = db.session.query(System.name).join(GameSystem).filter(GameSystem.game_id==game_id).all()
-#     print "Printing systems in /search.json"
-#     print systems
-#     genres = db.session.query(Genre.name).join(GameGenre).filter(GameGenre.game_id==game_id).all()
-#     print "Printing genres in /search.json"
-#     print genres
-
-#     game_stuff = {"name": game_info.name, 
-#                   "systems": systems,
-#                   "genres": genres}
-
-#     return jsonify(game_stuff)
 
 
 @app.route("/search")
@@ -164,14 +185,9 @@ def game_rating():
         db.session.add(new_rating)
         db.session.commit()
 
-        
-        # return redirect(request.referrer)
-
     else:
         existing_rating.score = rating
         db.session.commit()
-
-        # return redirect(request.referrer)
 
     return jsonify({"rating": rating})
 
@@ -318,11 +334,4 @@ if __name__ == "__main__":
 
 
     app.run(port=5000, host='0.0.0.0')
-
-
-
-
-
-
-
 

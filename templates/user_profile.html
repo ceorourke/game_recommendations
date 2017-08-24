@@ -10,6 +10,7 @@
   <h3> Username: </h3>  {{ user_info.username }}        <br>
   <h3> Email: </h3>     {{ user_info.email }}           <br>
   <h3> User Since: </h3> {{ account_created }} <br>
+  <canvas id="myChart" width="400" height="400"></canvas>
   <h3> Systems: </h3>
 
   {% for system in system_info %}
@@ -36,5 +37,8 @@
       </tr>
     </table>
 </p>
-
+<script>var user_id={{ user_id }}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
+<script src="http://code.jquery.com/jquery.js"></script>
+<script src="/static/profileChart.js"></script>
 {% endblock %}

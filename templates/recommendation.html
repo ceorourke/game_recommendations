@@ -6,16 +6,20 @@
 
 <!-- <a href="/homepage">Back to homepage</a>
  -->
- {% if games_info[0] < 10 %}
-    <b>Please rate at least 10 games to get a recommendation.</b></br>
-    You've rated <b>{{ games_info[0] }}</b> games.
-
+ {% if games_info == [] %}
+    Please check at least one system and one genre!<br/>
+    If you're sure you did, there may not be any games that fit the criteria.
 {% else %}
-    <b>Why don't you try: </b><br/><br/>
-    {% for game in games_info %}
-        {{ game.name }}
-        It's a {{ game.percentage }}% match!<br/>
-    {% endfor %}
+     {% if games_info[0] < 10 %}
+        <b>Please rate at least 10 games to get a recommendation.</b></br>
+        You've rated <b>{{ games_info[0] }}</b> games.
+
+    {% else %}
+        <b>Why don't you try: </b><br/><br/>
+        {% for game in games_info %}
+            <a href="/games/{{ game.game_id }}">{{ game.name }}</a>
+            It's a {{ game.percentage }}% match!<br/>
+        {% endfor %}
+    {% endif %}
 {% endif %}
-    
 {% endblock %}

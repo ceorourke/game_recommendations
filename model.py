@@ -201,7 +201,7 @@ class GameGenre(db.Model):
     def __repr__(self):
         """Provide useful info when printed to console"""
 
-        s = "<Gamegenre gamegenre_id=%s game_id=%s genre_id>"
+        s = "<Gamegenre gamegenre_id=%d game_id=%d genre_id=%d>"
 
         return s % (self.gamegenre_id, self.game_id, self.genre_id)
 
