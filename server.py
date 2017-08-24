@@ -12,14 +12,8 @@ from random import choice
 from sqlalchemy import func
 
 app = Flask(__name__)
-# TODO update this to be actually secret
-app.secret_key = "SECRETSECRETSECRET"
-
+app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 app.jinja_env.undefined = StrictUndefined
-
-REQUEST_URL = "https://api-2445582011268.apicast.io"
-
-# igdb = igdb("a215ea8dd33f4c3e384980920450bf5d")
 
 #*****************************************************************************#
 @app.route("/")
