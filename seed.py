@@ -52,61 +52,67 @@ def clean_up_list(x):
 
     return x
 
-def load_games():
+def load_games(platform_id):
     """Load games from games.txt into database"""
 
-    # delete info in case this is run twice, won't dupe data
-    Game.query.delete()
-    GameGenre.query.delete()
-
-    platform_games = json.load(open('seed_data/testfile.json'))
-    system_ids = json.load(open('seed_data/systemsfile.json'))
+    platform_games = json.load(open('seed_data/testfile' + str(platform_id) + '.json'))
+    system_ids = json.load(open('seed_data/systemsfile2.json'))
 
     fields = ['id', 'name', 'genres', 'storyline', 'summary', 'cover', 'screenshots', 'videos']
 
     for game in platform_games:
-        if game.get("screenshots"):
-            for screenshot in game["screenshots"]:
-                screenshot = Screenshot(screenshot_url=screenshot["url"],
-                                         screenshot_width=screenshot["width"],
-                                         screenshot_height=screenshot["height"],
-                                         game_id=game["id"])
+        game_id = game['id']
+        # check if game is already in db
+        db_game = Game.query.get(game_id)
 
-                db.session.add(screenshot)
+        if not db_game:
+            if game.get("screenshots"):
+                for screenshot in game["screenshots"]:
+                    screenshot = Screenshot(screenshot_url=screenshot["url"],
+                                             screenshot_width=screenshot["width"],
+                                             screenshot_height=screenshot["height"],
+                                             game_id=game["id"])
 
-        if game.get("videos"):
-            for video in game["videos"]:
-                video =  Video(game_id=game["id"],
-                               video_url=video["video_id"],
-                               video_name=video["name"])
+                    db.session.add(screenshot)
 
-                db.session.add(video)
+            if game.get("videos"):
+                for video in game["videos"]:
+                    video =  Video(game_id=game["id"],
+                                   video_url=video["video_id"],
+                                   video_name=video["name"])
 
-        cover = None
+                    db.session.add(video)
 
-        if game.get("cover"):
-            cover = game.get("cover").get("url")
+            cover = None
 
-        new_game = Game(game_id=game["id"], name=game["name"], storyline=game.get("storyline"),
-                    summary=game.get("summary"), cover=cover)
+            if game.get("cover"):
+                cover = game.get("cover").get("url")
 
-        db.session.add(new_game)
-        db.session.commit()
+            new_game = Game(game_id=game["id"], name=game["name"], storyline=game.get("storyline"),
+                        summary=game.get("summary"), cover=cover)
 
-        if game.get("genres"):
-            genre_ids = game["genres"]
-            for genre in genre_ids:
-                gamegen = GameGenre.query.filter_by(game_id=game["id"], genre_id=genre).first()
-                if not gamegen:
-                    game_genre = GameGenre(game_id=game["id"], genre_id=genre)
-                    db.session.add(game_genre)
+            db.session.add(new_game)
+            db.session.commit()
+
+            if game.get("genres"):
+                genre_ids = game["genres"]
+                for genre in genre_ids:
+                    gamegen = GameGenre.query.filter_by(game_id=game["id"], genre_id=genre).first()
+                    if not gamegen:
+                        game_genre = GameGenre(game_id=game["id"], genre_id=genre)
+                        db.session.add(game_genre)
 
     for system in system_ids:
-        for game in system["games"]:
-            gamesys = GameSystem.query.filter_by(game_id=game, system_id=system["id"]).first()
-            if not gamesys:
-                game_system = GameSystem(game_id=game, system_id=system["id"])
-                db.session.add(game_system)
+        if system['id'] == platform_id:
+            for game_id in system["games"]:
+                # check if game is in db at all. API being weird.
+                # game IDs showing up in system list but not in games
+                db_game = Game.query.get(game_id)
+                if db_game:
+                    gamesys = GameSystem.query.filter_by(game_id=int(game_id), system_id=system["id"]).first()
+                    if not gamesys:
+                        game_system = GameSystem(game_id=game_id, system_id=system["id"])
+                        db.session.add(game_system)
 
     db.session.commit()
 
@@ -176,13 +182,20 @@ if __name__ == "__main__":
     connect_to_db(app)
 
     # In case tables haven't been created, create them
+    db.drop_all()
+
     db.create_all()
 
     load_systems()
     print "Loaded systems..."
     load_genres()
     print "Loaded genres..."
-    load_games()
+    platforms = [130, 48]
+
+    for platform in platforms:
+        # loading in multiple files separated by system id
+        print "Loading " + str(platform)
+        load_games(platform)
     print "Loaded games..."
     load_users()
     print "Loaded users..."

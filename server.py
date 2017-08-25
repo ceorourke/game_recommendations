@@ -134,9 +134,8 @@ def get_recommendation():
     else:
         games_info.append(num_games) 
 
-    # games_info has name and percentage
-    print "Printing games info"
-    print games_info
+    # print "Printing games info"
+    # print games_info
     return render_template("recommendation.html", games_info=games_info)
 
 
