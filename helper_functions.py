@@ -23,16 +23,19 @@ def get_all_similarities(target_game, users, games, user_id):
     for user in users.items():
         # if user[0] != session['user_id'] and user[1][target_game]:
         if user[0] != user_id and user[1][target_game]:
-            print "Made it to get_all_similarities!"
+            # print "Made it to get_all_similarities!"
             # red_users = filt_all(user[0], session['user_id'], games, users)
             red_users = filt_all(user[0], user_id, games, users)
-            print "Printing red_users from get_all_similarities"
-            print red_users
+            # print "Printing red_users from get_all_similarities"
+            # print red_users
             red_users = [(x[0], x[1]) for x in red_users]
 
             # sim = pearson(zip(red_users[0], red_users[1]))
-            sim = pearson(red_users)
-            sims[user[0]] = sim
+            try:
+                sim = pearson(red_users)
+                sims[user[0]] = sim
+            except:
+                raise Exception("Not enough similarities")
 
     # print "Printing sims from get_all_similarities"
     # print sims
@@ -47,19 +50,19 @@ def filt_all(user1, user2, games, users):
     # print users
 
     result = []
-    print "Printing inputs from filt_all"
-    print user1, user2, games
+    # print "Printing inputs from filt_all"
+    # print user1, user2, games
 
     user1_ratings = [score for game_id, score in sorted(users[user1].items())]
-    print "Printing user1_ratings from filt_all"
-    print user1_ratings
+    # print "Printing user1_ratings from filt_all"
+    # print user1_ratings
     user2_ratings = [score for game_id, score in sorted(users[user2].items())]
-    print "Printing user2_ratings from filt_all"
-    print user2_ratings
+    # print "Printing user2_ratings from filt_all"
+    # print user2_ratings
 
     users_filt = zip(user1_ratings, user2_ratings, games)
-    print "Printing users_filt from filt_all"
-    print users_filt
+    # print "Printing users_filt from filt_all"
+    # print users_filt
 
     for u1, u2, game_id in users_filt:
         if u1 and u2:
@@ -89,6 +92,8 @@ def pearson(pairs):
     product_sum = sum([n * m for n, m in pairs])
 
     size = len(pairs)
+    if size == 0:
+        raise Exception("Not enough similarities")
 
     numerator = product_sum - ((sum_1 * sum_2)/size)
 

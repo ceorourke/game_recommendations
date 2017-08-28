@@ -105,16 +105,32 @@ def get_recommendation():
         systems = request.args.getlist("systems")
         genres = request.args.getlist("genres")
 
+        # if systems aren't checked, use all of current users' systems
+        if systems == []:
+            # get users' system ids
+            user_system = UserSystem.query.filter_by(user_id=user_id).all()
+            for i in user_system:
+                systems.append(i.system_id)
+        # if genres aren't checked, use all genres
+        if genres == []:
+            all_genres = Genre.query.all()
+            for i in all_genres:
+                genres.append(i.genre_id)
+
         filt_games = (db.session.query(Game.game_id)
                                 .join(GameSystem, GameGenre)
                                 .filter(GameSystem.system_id.in_(systems),
                                         GameGenre.genre_id.in_(genres))
-                                .all())    
+                                .all())
 
         filt_games = [game[0] for game in filt_games]
 
         for game in filt_games:
-            sims = get_all_similarities(game, users, games, user_id)
+            try:
+                sims = get_all_similarities(game, users, games, user_id)
+            except:
+                games_info.append(num_games) 
+                return render_template("recommendation.html", games_info=games_info)
             raw_pred = predict(sims, users, game)
 
             if raw_pred > 3.0:
@@ -139,18 +155,35 @@ def get_recommendation():
     return render_template("recommendation.html", games_info=games_info)
 
 
-@app.route("/search")
-def search_game():
-    """Handle search, render game details page"""
+# @app.route("/search")
+# def search_game():
+#     """Handle search, render game details page"""
 
-    game = request.args.get("search").title()
-    game_info = Game.query.filter(Game.name.like("%"+game+"%")).first()
+#     game = request.args.get("search").title()
+#     game_info = Game.query.filter(Game.name.like("%"+game+"%")).first()
+#     if game_info:
+#         game_id = game_info.game_id
+#     else:
+#         game_id = 0
+
+#     return redirect("games/" + str(game_id))
+
+@app.route("/search.json", methods=["POST"])
+def search_for_games():
+    """Handle search, return results so JS can render homepage using AJAX"""
+
+    game = request.form.get("game").title()
+    json_game_info = {"games": []}
+    print game
+    game_info = Game.query.filter(Game.name.like("%"+game+"%")).all()
+    print game_info
     if game_info:
-        game_id = game_info.game_id
+        for game in game_info:
+            json_game_info["games"].append({"name": game.name, "game_id": game.game_id})
     else:
-        game_id = 0
-
-    return redirect("games/" + str(game_id))
+        json_game_info["games"].append({"name": None, "game_id": 0})
+    print json_game_info
+    return jsonify(json_game_info)
 
 @app.route("/games/<game_id>")
 def show_game_details(game_id):
