@@ -30,13 +30,19 @@ Game Not Found
      <form action="/gamerating" method="POST">
         <input type="hidden" id="gameId" name="game_id" value="{{ game_info.game_id }}">
         Rating: 
-        <input type="radio" name="rating" value="1"> Meh
-        <input type="radio" name="rating" value="2"> It's OK
-        <input type="radio" name="rating" value="3"> Fine
-        <input type="radio" name="rating" value="4"> Good!
-        <input type="radio" name="rating" value="5"> BEST GAME EVAR
+        <input type="radio" name="rating" value="1"> 1
+        <input type="radio" name="rating" value="2"> 2
+        <input type="radio" name="rating" value="3"> 3
+        <input type="radio" name="rating" value="4"> 4
+        <input type="radio" name="rating" value="5"> 5
         <input type="submit" id="submit-btn" value="Submit">
     </form>
+        <b> Rating Guidelines</b><br/>
+        <b>1:</b> Meh 
+        <b>2:</b> It's OK 
+        <b>3:</b> Fine 
+        <b>4:</b> Good!
+        <b>5:</b> BEST GAME EVAR 
 
     <h3>Systems:</h3> 
     {% for system in game_info.gamesystems %}

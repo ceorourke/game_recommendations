@@ -60,7 +60,7 @@ def user_genre_data():
     user_id = int(request.args.get("user_id"))
 
     user_ratings = Rating.query.filter_by(user_id=user_id).all()
-    print user_ratings
+    # print user_ratings
     user_rated_games = [(rating.game, rating.score) for rating in user_ratings]
  
     gamegenres_matrix = [(game.gamegenres, score) for game, score in user_rated_games]
@@ -83,7 +83,7 @@ def user_genre_data():
         results["labels"].append(genre)
         results["weights"].append(sum(scores)/float(len(scores)))
 
-    print results
+    # print results
     return jsonify(results)
 
 
@@ -148,7 +148,7 @@ def get_recommendation():
                                "percentage": percentage,
                                "game_id": game_id})
     else:
-        games_info.append(num_games) 
+        games_info.append(num_games)
 
     # print "Printing games info"
     # print games_info
@@ -271,6 +271,40 @@ def register_process():
         # as to whether it was the username or email that failed
 
     return redirect("/")
+
+
+@app.route("/add_systems", methods=["GET"])
+def add_systems():
+    """Show page that allows a user to add more systems to their profile"""
+
+    user_id = session["user_id"]
+    owned_systems_list = []
+    owned_systems = [us.system.name 
+                     for us in UserSystem.query.filter_by(user_id=user_id).all()]
+    all_systems = [sys.name for sys in  System.query.all()]
+    not_owned_systems_list = sorted(set(all_systems) - set(owned_systems))
+
+
+    return render_template("add_systems.html", not_owned_systems_list=not_owned_systems_list)
+
+
+@app.route("/add_systems", methods=["POST"])
+def process_add_systems():
+    """Add new systems to db"""
+
+    user_id = session["user_id"]
+    systems = request.form.getlist("systems")
+
+    for system in systems:
+        system_id = db.session.query(System.system_id).filter(System.name==system).first()
+        new_system = UserSystem(user_id=user_id, system_id=system_id)
+
+        db.session.add(new_system)
+        db.session.commit()
+
+    flash("Successfully added systems")
+
+    return redirect("/user/" + str(user_id))
 
 @app.route("/login", methods=["GET"])
 def attempt_login():

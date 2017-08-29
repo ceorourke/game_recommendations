@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Systems{% endblock %}
+
+{% block content %}
+
+<h1>Add Systems</h1>
+{% if not_owned_systems_list %}
+    <form action="/add_systems" method="POST">
+        Systems: </br>
+        {% for system in not_owned_systems_list %}
+            <input type="checkbox" name="systems" value="{{ system }}">{{ system }}
+            </br>
+        {% endfor %}
+    </br>
+    <input type="submit" value="Add Systems">
+{% else %}
+    You can't add any systems because you own EVERYTHING! Holy crap!
+{% endif %}
+
+{% endblock %}
