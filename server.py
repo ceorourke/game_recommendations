@@ -46,12 +46,17 @@ def user_profile(user_id):
     rating_info = (db.session.query(Game.name, Rating.score, Game.game_id)
                              .join(Rating).filter(Rating.user_id==user_id)
                              .all())
+    num_games =  (db.session.query(func.count(Rating.user_id))
+                            .filter(Rating.user_id == user_id)
+                            .first())
+    num_games = int(num_games[0])
 
     return render_template("user_profile.html", user_info=user_info,
                                                 system_info=system_info,
                                                 rating_info=rating_info,
                                                 account_created=account_created,
-                                                user_id=user_id)
+                                                user_id=user_id,
+                                                num_games=num_games)
 
 @app.route("/userprofile.json")
 def user_genre_data():
@@ -174,15 +179,15 @@ def search_for_games():
 
     game = request.form.get("game").title()
     json_game_info = {"games": []}
-    print game
+
     game_info = Game.query.filter(Game.name.like("%"+game+"%")).all()
-    print game_info
+
     if game_info:
         for game in game_info:
             json_game_info["games"].append({"name": game.name, "game_id": game.game_id})
     else:
         json_game_info["games"].append({"name": None, "game_id": 0})
-    print json_game_info
+
     return jsonify(json_game_info)
 
 @app.route("/games/<game_id>")

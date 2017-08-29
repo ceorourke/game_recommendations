@@ -12,7 +12,9 @@
   <h3> User Since: </h3> {{ account_created }} <br>
 
   <!-- shows chart.js visualization -->
+  {% if num_games >= 3 %}
   <canvas id="myChart" width="400" height="400"></canvas>
+  {% endif %}
   <h3> Systems: </h3>
 
   {% for system in system_info %}
