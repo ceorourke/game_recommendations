@@ -40,18 +40,17 @@ def get_all_games():
     """Makes API calls to get game information"""
 
     # add all platforms later! this is just switch games for testing
-    platforms = [130, 48]
+    # platforms = [130, 48]
 
+    platforms = [130, 48, 49, 37, 46, 41, 5, 47, 56, 4, 21, 19, 18, 58, 20, 22, 33, 24,
+                87, 7, 8, 9, 38, 45, 11, 12, 36, 92, 14, 6, 13, 64, 29, 35, 32, 23, 34,
+                39, 86, 51, 15, 13 ,79, 80, 119, 120, 135, 136]
 
     systems_json = igdb.platforms({
         'ids':platforms,
         'fields' : 'games'
     })
 
-    print len(systems_json)
-
-
-    return
     with open('systemsfile2.json', 'w') as fp:
             json.dump(systems_json, fp)
 

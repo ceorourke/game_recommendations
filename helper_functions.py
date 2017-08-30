@@ -22,7 +22,7 @@ def get_all_similarities(target_game, users, games, user_id):
 
     for user in users.items():
         # if user[0] != session['user_id'] and user[1][target_game]:
-        if user[0] != user_id and user[1][target_game]:
+        if user[0] != user_id and user[1]:
             # print "Made it to get_all_similarities!"
             # red_users = filt_all(user[0], session['user_id'], games, users)
             red_users = filt_all(user[0], user_id, games, users)
@@ -48,7 +48,7 @@ def filt_all(user1, user2, games, users):
     # from pprint import pprint
     # pprint(users)
     # print users
-
+    games = sorted(games)
     result = []
     # print "Printing inputs from filt_all"
     # print user1, user2, games
@@ -78,8 +78,8 @@ def pearson(pairs):
 
     Using a set of pairwise ratings, produces a Pearson similarity rating.
     """
-    # print "Printing pearson pairs"
-    # print pairs
+    print "Printing pearson pairs"
+    print pairs
     series_1 = [float(pair[0]) for pair in pairs]
     series_2 = [float(pair[1]) for pair in pairs]
 
@@ -95,7 +95,7 @@ def pearson(pairs):
     if size == 0:
         raise Exception("Not enough similarities")
 
-    numerator = product_sum - ((sum_1 * sum_2)/size)
+    numerator = product_sum - (sum_1 * sum_2/float(size))
 
     denominator = sqrt(
         (squares_1 - (sum_1 * sum_1) / size) *
@@ -104,6 +104,7 @@ def pearson(pairs):
 
     if denominator == 0:
         return 0
+
     # print "Printing pearson result"
     # print numerator / denominator
 
@@ -127,7 +128,13 @@ def predict(sims, users, target_game):
 
     return result
 
-
+def standard_deviation(ratings):
+    """Calculate standard deviation of game ratings"""
+    
+    mean = sum(ratings) / float(len(ratings))
+    deviations = [rating - mean for rating in ratings]
+    sum_sq_deviations = sum([dev ** 2 for dev in deviations])
+    return sqrt(sum_sq_deviations/(len(ratings)-1))
 # def filt(user1, user2, games):
 #     """Filter down lists to only include ratings they've both done"""
 

@@ -9,6 +9,11 @@
  {% if games_info == [] %}
     Please check at least one system and one genre!<br/>
     If you're sure you did, there may not be any games that fit the criteria.
+{% elif games_info[0] == "no" %}
+    You've rated every game exactly the same. That's not very useful
+    for trying to figure out what you like. <br/>
+    Please change it up! Rate some stuff you don't like, rate some stuff you love, etc. <br/>
+    This will give you the best recommendations! 
 {% else %}
      {% if games_info[0] < 10 %}
         <b>Please rate at least 10 games to get a recommendation.</b></br>

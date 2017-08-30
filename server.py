@@ -7,7 +7,7 @@ from datetime import datetime
 import os, math
 from igdb_api_python.igdb import igdb
 from flask_sqlalchemy import SQLAlchemy
-from helper_functions import get_all_similarities, filt_all, pearson, predict
+from helper_functions import get_all_similarities, filt_all, pearson, predict, standard_deviation
 from random import choice
 from sqlalchemy import func
 
@@ -104,7 +104,15 @@ def get_recommendation():
                             .first())
     num_games = int(num_games[0])
 
-    if num_games >= 10:
+    ratings = db.session.query(Rating.score).filter_by(user_id=user_id).all()
+    ratings = [rating[0] for rating in ratings]
+    deviation = standard_deviation(ratings)
+
+    if deviation == 0:
+        games_info.append("no")
+        return render_template("recommendation.html", games_info=games_info)
+
+    if num_games >= 10 and deviation != 0:
         recommendations = []
 
         systems = request.args.getlist("systems")
@@ -133,6 +141,8 @@ def get_recommendation():
         for game in filt_games:
             try:
                 sims = get_all_similarities(game, users, games, user_id)
+                print sims
+                print "Printed sims ^^^"
             except:
                 games_info.append(num_games) 
                 return render_template("recommendation.html", games_info=games_info)
@@ -155,8 +165,8 @@ def get_recommendation():
     else:
         games_info.append(num_games)
 
-    # print "Printing games info"
-    # print games_info
+    print "Printing games info"
+    print games_info
     return render_template("recommendation.html", games_info=games_info)
 
 
@@ -257,7 +267,7 @@ def register_process():
 
         db.session.add(new_user)
         db.session.commit()
-        get_user_rating(users, new_user, games)
+        get_user_rating(games)
 
         for system in systems:
             # add each system to the database for the specific user
@@ -351,24 +361,28 @@ def do_logout():
     return redirect("/")
 
 
-def get_user_rating(users, user, games):
+def get_user_rating(games):
     """Get all ratings for all users"""
 
-    userrating = {}
+    # userrating = {}
 
-    for game in games:
-        gamerating = Rating.query.filter_by(game_id=game, user_id=user.user_id).first()
-        if gamerating:
-            userrating[game] = gamerating.score
-            # print "Printing game rating in get_user_rating"
-            # print userrating[game]
-        else:
-            userrating[game] = 0
+    # for game in games:
+    #     gamerating = Rating.query.filter_by(game_id=game, user_id=user.user_id).first()
+    #     if gamerating:
+    #         userrating[game] = gamerating.score
+    #     else:
+    #         userrating[game] = 0
 
-        users[user.user_id] = userrating
-    # print "Pretty printing users from get_user_rating"
-    # from pprint import pprint
-    # pprint(users)
+    #     users[user.user_id] = userrating
+
+
+    # makes a dictionary with every game_id having a value of zero
+    users = {}
+
+    for rating in Rating.query.all():
+        if rating.user_id not in users:
+            users[rating.user_id] = { game_id : 0 for game_id in games}
+        users[rating.user_id][rating.game_id] = rating.score
 
     return users
 
@@ -384,14 +398,17 @@ if __name__ == "__main__":
     connect_to_db(app)
     print "Connected to DB."
 
-    games = [game.game_id for game in db.session.query(Game.game_id).all()]
+    games = set(game.game_id for game in db.session.query(Game.game_id).all())
 
-    users = {}
+    print "Loaded games"
+
+    # users = {}
     # print "Printing all users"
     # print User.query.all()
-    for user in User.query.all():
-        users = get_user_rating(users, user, games)
-
+    # for user in User.query.all():
+    #     users = get_user_rating(users, user, games)
+    users = get_user_rating(games)
+    print "Loaded users"
     # from pprint import pprint
     # # pprint(users)
     # print "Printing games"
