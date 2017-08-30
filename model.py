@@ -83,7 +83,7 @@ class Game(db.Model):
     game_id = db.Column(db.Integer, autoincrement=False, primary_key=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     storyline = db.Column(db.String(10000), nullable=True)
-    summary = db.Column(db.String(10000), nullable=True)
+    summary = db.Column(db.String(30000), nullable=True)
     cover =  db.Column(db.String(10000), nullable=True)
 
     def __repr__(self):

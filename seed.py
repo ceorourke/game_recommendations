@@ -53,11 +53,10 @@ def clean_up_list(x):
     return x
 
 def load_games(platform_id):
-    """Load games from games.txt into database"""
+    """Load games from json files into database"""
 
     platform_games = json.load(open('seed_data/testfile' + str(platform_id) + '.json'))
     system_ids = json.load(open('seed_data/systemsfile2.json'))
-
     fields = ['id', 'name', 'genres', 'storyline', 'summary', 'cover', 'screenshots', 'videos']
 
     for game in platform_games:

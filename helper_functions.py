@@ -78,8 +78,8 @@ def pearson(pairs):
 
     Using a set of pairwise ratings, produces a Pearson similarity rating.
     """
-    print "Printing pearson pairs"
-    print pairs
+    # print "Printing pearson pairs"
+    # print pairs
     series_1 = [float(pair[0]) for pair in pairs]
     series_2 = [float(pair[1]) for pair in pairs]
 

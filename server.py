@@ -106,12 +106,13 @@ def get_recommendation():
 
     ratings = db.session.query(Rating.score).filter_by(user_id=user_id).all()
     ratings = [rating[0] for rating in ratings]
+    # calculate standard deviation
     deviation = standard_deviation(ratings)
-
+    # if this user rates everything the same, send them this error page
     if deviation == 0:
         games_info.append("no")
         return render_template("recommendation.html", games_info=games_info)
-
+    # if you've rated more than 10 games and you don't rate everything the same:
     if num_games >= 10 and deviation != 0:
         recommendations = []
 
@@ -141,8 +142,6 @@ def get_recommendation():
         for game in filt_games:
             try:
                 sims = get_all_similarities(game, users, games, user_id)
-                print sims
-                print "Printed sims ^^^"
             except:
                 games_info.append(num_games) 
                 return render_template("recommendation.html", games_info=games_info)
@@ -165,8 +164,8 @@ def get_recommendation():
     else:
         games_info.append(num_games)
 
-    print "Printing games info"
-    print games_info
+    # print "Printing games info"
+    # print games_info
     return render_template("recommendation.html", games_info=games_info)
 
 
@@ -190,7 +189,7 @@ def search_for_games():
     game = request.form.get("game").title()
     json_game_info = {"games": []}
 
-    game_info = Game.query.filter(Game.name.like("%"+game+"%")).all()
+    game_info = Game.query.filter(Game.name.ilike("%"+game+"%")).all()
 
     if game_info:
         for game in game_info:

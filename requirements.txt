@@ -13,6 +13,7 @@ MarkupSafe==1.0
 pkg-resources==0.0.0
 psycopg2==2.7.3
 requests==2.18.3
+schedule==0.4.3
 SQLAlchemy==1.1.13
 urllib3==1.22
 Werkzeug==0.12.2
