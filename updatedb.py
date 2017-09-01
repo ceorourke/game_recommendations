@@ -98,11 +98,24 @@ def add_games_to_database(game, system):
 
         cover = None
 
+        # if game.get("cover"):
+        #     cover = game.get("cover").get("url")
         if game.get("cover"):
-            cover = game.get("cover").get("url")
+            # cover = game.get("cover").get("url")
+            for cover in game["cover"]:
+                cover = Cover(cover_url=game.get("cover").get("cloudinary_id"),
+                              cover_width=game.get("cover").get("width"),
+                              cover_height=game.get("cover").get("height"),
+                              game_id=game["id"])
 
-        new_game = Game(game_id=game["id"], name=game["name"], storyline=game.get("storyline"),
-                    summary=game.get("summary"), cover=cover)
+                db.session.add(cover)
+
+        # new_game = Game(game_id=game["id"], name=game["name"], storyline=game.get("storyline"),
+        #             summary=game.get("summary"), cover=cover)
+        new_game = Game(game_id=game["id"], name=game["name"], 
+                        storyline=game.get("storyline"),
+                        summary=game.get("summary"))
+
 
         db.session.add(new_game)
         db.session.commit()

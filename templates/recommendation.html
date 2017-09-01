@@ -6,6 +6,11 @@
 
 <!-- <a href="/homepage">Back to homepage</a>
  -->
+ <style>
+.carousel-inner > .item > img {
+    margin: 0 auto;
+}
+ </style>
  {% if games_info == [] %}
     Please check at least one system and one genre!<br/>
     If you're sure you did, there may not be any games that fit the criteria.
@@ -21,10 +26,62 @@
 
     {% else %}
         <b>Why don't you try: </b><br/><br/>
+
+<div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+  <!-- Indicators -->
+  <ol class="carousel-indicators">
+    <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+    <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+    <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+  </ol>
+
+  <!-- Wrapper for slides -->
+  <div class="carousel-inner" role="listbox">
+    <div class="item active">
+         
+         {% if games_info[0]['cover'] != None %}
+            <img class="img-fluid" src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{ games_info[0]['cover'] }}">
+            {% else %}
+            <img src="http://placekitten.com.s3.amazonaws.com/homepage-samples/200/286.jpg">
+            {% endif %}
+         <div class="carousel-caption">
+            <a href="/games/{{ games_info[0].game_id }}">{{ games_info[0].name }}</a>
+            It's a {{ games_info[0].percentage }}% match!
+        </div>
+    </div>
+
+        {% for game in games_info[1:] %}
+            <div class="item">
+            {% if game['cover'] != None %}
+            <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{ game['cover'] }}">
+            {% else %}
+            <img src="http://placekitten.com.s3.amazonaws.com/homepage-samples/200/286.jpg">
+            {% endif %}
+            <div class="carousel-caption">
+            <a href="/games/{{ game.game_id }}">{{ game.name }}</a>
+
+            It's a {{ game.percentage }}% match!
+            </div>    
+            </div>
+        {% endfor %}
+  </div>
+
+  <!-- Controls -->
+  <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+    <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+    <span class="sr-only">Previous</span>
+  </a>
+  <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+    <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+    <span class="sr-only">Next</span>
+  </a>
+</div>
+
+<!-- 
         {% for game in games_info %}
             <a href="/games/{{ game.game_id }}">{{ game.name }}</a>
             It's a {{ game.percentage }}% match!<br/>
-        {% endfor %}
+        {% endfor %} -->
     {% endif %}
 {% endif %}
 {% endblock %}

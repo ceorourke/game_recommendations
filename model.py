@@ -84,7 +84,7 @@ class Game(db.Model):
     name = db.Column(db.String(100), nullable=False)
     storyline = db.Column(db.String(10000), nullable=True)
     summary = db.Column(db.String(30000), nullable=True)
-    cover =  db.Column(db.String(10000), nullable=True)
+    # cover =  db.Column(db.String(10000), nullable=True)
 
     def __repr__(self):
         """Provide useful info when printed to console"""
@@ -92,6 +92,26 @@ class Game(db.Model):
         s = "<Game game_id=%s name=%s>"
 
         return s % (self.game_id, self.name)
+
+class Cover(db.Model):
+    """Cover art model"""
+
+    __tablename__ = "covers"
+
+    cover_id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
+    cover_url = db.Column(db.String(100), nullable=False)
+    cover_width = db.Column(db.Integer, nullable=False)
+    cover_height = db.Column(db.Integer, nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey("games.game_id"), nullable=False)
+
+    game = db.relationship("Game", backref=db.backref("covers"))
+
+    def __repr__(self):
+        """Provide useful info when printed to console"""
+
+        s = "<Cover cover_id=%s cover_url%s cover_width=%s cover_height%s>"
+
+        return s % (self.cover_id, self.cover_url, self.cover_width, self.cover_height)
 
 class Screenshot(db.Model):
     """Screenshot model"""

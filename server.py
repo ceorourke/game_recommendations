@@ -1,5 +1,5 @@
 
-from flask import Flask, jsonify, render_template, request, flash, redirect, session
+from flask import Flask, jsonify, render_template, request, flash, redirect, session, g, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from model import connect_to_db, db, User, Following, Rating, Game, System, Genre, UserSystem, GameGenre, GameSystem
 from jinja2 import StrictUndefined
@@ -22,17 +22,87 @@ def welcome():
 
     return render_template("welcome.html")
 
+@app.route("/test")
+def test_stuff():
+
+    return render_template("test.html")
+
+@app.before_request
+def before_everything():
+    """Stuff to do before every other route"""
+    
+    # import pdb; pdb.set_trace()
+    # raise Exception
+    if request.path == '/homepage':
+        g.homepage = True
+    else:
+        g.homepage = False
 
 @app.route("/homepage")
 def homepage():
     """Show homepage"""
-
+    
     user_id = session["user_id"]
     system_info = UserSystem.query.filter_by(user_id=user_id).all()
     genre_info = Genre.query.all()
+    search_term = request.args.get('search_term')
+    if search_term != None:
+        results = search(search_term)
+    else:
+        results = None
+
+    print "Printing results in homepage"
+    print type(results)
+    print results
 
     return render_template("homepage.html", system_info=system_info, 
-                                            genre_info=genre_info)
+                                            genre_info=genre_info,
+                                            results=results)
+
+@app.route("/homepage_search")
+def homepage_with_search():
+    """Show homepage with search results"""
+
+    # do search, same as in search route
+    search_term = request.args.get("search")
+
+    return redirect(url_for('homepage', search_term=search_term))
+
+
+@app.route("/search.json", methods=["POST"])
+def search_for_games():
+    """Handle search, return results so JS can render homepage using AJAX"""
+
+    game = request.form.get("game")
+    # json_game_info = {"games": []}
+
+    game_info = search(game)
+
+    # game_info = Game.query.filter(Game.name.ilike("%"+game+"%")).all()
+
+    # if game_info:
+    #     for game in game_info:
+    #         json_game_info["games"].append({"name": game.name, "game_id": game.game_id})
+    # else:
+    #     json_game_info["games"].append({"name": None, "game_id": 0})
+
+    # return jsonify(json_game_info)
+    return jsonify(game_info)
+
+
+def search(game):
+    """Handle search, return results so JS can render homepage using AJAX"""
+
+    json_game_info = {"games": []}
+    game_info = Game.query.filter(Game.name.ilike("%"+game+"%")).all()
+
+    if game_info:
+        for game in game_info:
+            json_game_info["games"].append({"name": game.name, "game_id": game.game_id})
+    else:
+        json_game_info["games"].append({"name": None, "game_id": 0})
+
+    return json_game_info
 
 
 @app.route("/user/<user_id>")
@@ -65,7 +135,6 @@ def user_genre_data():
     user_id = int(request.args.get("user_id"))
 
     user_ratings = Rating.query.filter_by(user_id=user_id).all()
-    # print user_ratings
     user_rated_games = [(rating.game, rating.score) for rating in user_ratings]
  
     gamegenres_matrix = [(game.gamegenres, score) for game, score in user_rated_games]
@@ -88,7 +157,6 @@ def user_genre_data():
         results["labels"].append(genre)
         results["weights"].append(sum(scores)/float(len(scores)))
 
-    # print results
     return jsonify(results)
 
 
@@ -154,50 +222,24 @@ def get_recommendation():
             one_game_info = Game.query.filter(Game.game_id==rec[0]).first()
             name = one_game_info.name
             game_id = one_game_info.game_id
+            if not one_game_info.covers:
+                cover = None
+            else:
+                cover = one_game_info.covers[0].cover_url
+
             if isinstance(rec[1], (str, unicode)) == False:
                 percentage = round(rec[1] * 20, 2)
             else:
                 percentage = rec[1]
             games_info.append({"name": name, 
                                "percentage": percentage,
-                               "game_id": game_id})
+                               "game_id": game_id,
+                               "cover": cover})
     else:
         games_info.append(num_games)
 
-    # print "Printing games info"
-    # print games_info
     return render_template("recommendation.html", games_info=games_info)
 
-
-# @app.route("/search")
-# def search_game():
-#     """Handle search, render game details page"""
-
-#     game = request.args.get("search").title()
-#     game_info = Game.query.filter(Game.name.like("%"+game+"%")).first()
-#     if game_info:
-#         game_id = game_info.game_id
-#     else:
-#         game_id = 0
-
-#     return redirect("games/" + str(game_id))
-
-@app.route("/search.json", methods=["POST"])
-def search_for_games():
-    """Handle search, return results so JS can render homepage using AJAX"""
-
-    game = request.form.get("game").title()
-    json_game_info = {"games": []}
-
-    game_info = Game.query.filter(Game.name.ilike("%"+game+"%")).all()
-
-    if game_info:
-        for game in game_info:
-            json_game_info["games"].append({"name": game.name, "game_id": game.game_id})
-    else:
-        json_game_info["games"].append({"name": None, "game_id": 0})
-
-    return jsonify(json_game_info)
 
 @app.route("/games/<game_id>")
 def show_game_details(game_id):

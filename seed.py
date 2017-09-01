@@ -1,7 +1,7 @@
 """Seeds system data into db"""
 
 from sqlalchemy import func
-from model import System, Genre, Game, GameGenre, GameSystem, User, Rating, UserSystem, Screenshot, Video
+from model import System, Genre, Game, GameGenre, GameSystem, User, Rating, UserSystem, Screenshot, Video, Cover
 from model import connect_to_db, db
 from server import app
 from random import randint
@@ -67,10 +67,10 @@ def load_games(platform_id):
         if not db_game:
             if game.get("screenshots"):
                 for screenshot in game["screenshots"]:
-                    screenshot = Screenshot(screenshot_url=screenshot["url"],
-                                             screenshot_width=screenshot["width"],
-                                             screenshot_height=screenshot["height"],
-                                             game_id=game["id"])
+                    screenshot = Screenshot(screenshot_url=screenshot["cloudinary_id"],
+                                            screenshot_width=screenshot["width"],
+                                            screenshot_height=screenshot["height"],
+                                            game_id=game["id"])
 
                     db.session.add(screenshot)
 
@@ -83,12 +83,25 @@ def load_games(platform_id):
                     db.session.add(video)
 
             cover = None
-
+            # updated this to save data in Cover table
             if game.get("cover"):
-                cover = game.get("cover").get("url")
+                # cover = game.get("cover").get("url")
+                for cover in game["cover"]:
+                    cover = Cover(cover_url=game.get("cover").get("cloudinary_id"),
+                                  cover_width=game.get("cover").get("width"),
+                                  cover_height=game.get("cover").get("height"),
+                                  game_id=game["id"])
 
-            new_game = Game(game_id=game["id"], name=game["name"], storyline=game.get("storyline"),
-                        summary=game.get("summary"), cover=cover)
+                    db.session.add(cover)
+
+
+            # new_game = Game(game_id=game["id"], name=game["name"], storyline=game.get("storyline"),
+            #             summary=game.get("summary"), cover=cover)
+            # changed to remove cover because that's going into Cover
+            new_game = Game(game_id=game["id"], name=game["name"], 
+                            storyline=game.get("storyline"),
+                            summary=game.get("summary"))
+
 
             db.session.add(new_game)
             db.session.commit()

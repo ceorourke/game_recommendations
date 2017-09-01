@@ -55,8 +55,11 @@ Game Not Found
     {% endfor %} <br/>
 
 
-    {% if game_info.cover != None %}
-    <img src="{{ game_info.cover }}" style="width:100px;">
+    {% if game_info.covers != [] %}
+        <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{ game_info.covers[0].cover_url }}" 
+        style="width: {{ game_info.covers[0].cover_width }}px height: {{ game_info.covers[0].cover_height }};">
+    {% else %}
+        <img src="http://placekitten.com.s3.amazonaws.com/homepage-samples/200/286.jpg">
     {% endif %}<br/><br/>
     
     {{ game_info.summary }} <br/><br/>
@@ -80,7 +83,9 @@ Game Not Found
 
     {% if game_info.screenshots != None %}
         {% for screenshot in game_info.screenshots %}
-            <img src="{{ screenshot.screenshot_url }}" style="width:{{ screenshot.screenshot_width }}px height:{{ screenshot.screenshot_height }};">
+        <!-- {{ screenshot.screenshot_url }} -->
+            <img src="https://images.igdb.com/igdb/image/upload/t_screenshot_med_2x/{{ screenshot.screenshot_url }}" 
+                 style="width:{{ screenshot.screenshot_width }}px height:{{ screenshot.screenshot_height }};">
         {% endfor %}
     {% endif %}<br/><br/>
 

@@ -7,6 +7,7 @@
     </head>
 
     <body>
+      <input type="hidden" id="hidden_stuff" value="{{ request.path }}">
 
         {% for message in get_flashed_messages() %}
             {{ message }}
@@ -32,7 +33,12 @@
           </ul>
         </li>
       </ul>
-      <form  action="/search.json" method="POST" class="navbar-form navbar-left">
+      {% if g.homepage %}
+      <!-- TODO make this a get request -->
+      <form action="/search.json" method="POST" class="navbar-form navbar-left">
+      {% else %}
+      <form action="/homepage_search" method="GET" class="navbar-form navbar-left">
+      {% endif %}
         <div class="form-group">
           <input type="text" id="search-text" name="search" class="form-control" placeholder="e.g. Splatoon 2">
         </div>
@@ -76,7 +82,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.10/handlebars.runtime.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.10/handlebars.min.js"></script>
 
-<script src="/static/searchResults.js"></script>
+{% block js %}
+{% endblock %}
 
     </body>
 </html>
