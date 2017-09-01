@@ -25,7 +25,7 @@
         You've rated <b>{{ games_info[0] }}</b> games.
 
     {% else %}
-        <b>Why don't you try: </b><br/><br/>
+        <b><center>Why don't you try: </center></b><br/><br/>
 
 <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
   <!-- Indicators -->
@@ -38,6 +38,7 @@
   <!-- Wrapper for slides -->
   <div class="carousel-inner" role="listbox">
     <div class="item active">
+       <center><h1><a href="/games/{{ games_info[0].game_id }}">{{ games_info[0].name }}</a></h1></center>
          
          {% if games_info[0]['cover'] != None %}
             <img class="img-fluid" src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{ games_info[0]['cover'] }}">
@@ -45,7 +46,7 @@
             <img src="http://placekitten.com.s3.amazonaws.com/homepage-samples/200/286.jpg">
             {% endif %}
          <div class="carousel-caption">
-            <a href="/games/{{ games_info[0].game_id }}">{{ games_info[0].name }}</a>
+            
             It's a {{ games_info[0].percentage }}% match!
         </div>
     </div>
@@ -53,13 +54,12 @@
         {% for game in games_info[1:] %}
             <div class="item">
             {% if game['cover'] != None %}
+            <center><h1><a href="/games/{{ game.game_id }}">{{ game.name }}</a></h1></center>
             <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{ game['cover'] }}">
             {% else %}
             <img src="http://placekitten.com.s3.amazonaws.com/homepage-samples/200/286.jpg">
             {% endif %}
             <div class="carousel-caption">
-            <a href="/games/{{ game.game_id }}">{{ game.name }}</a>
-
             It's a {{ game.percentage }}% match!
             </div>    
             </div>

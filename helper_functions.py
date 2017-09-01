@@ -113,21 +113,16 @@ def pearson(pairs):
 def predict(sims, users, target_game):
     """Predict similarity"""
 
-    print "Printing inputs from predict"
-    print sims
-    pos_numerator = sum(sim * users[i][target_game] for i, sim in sims.items() if sim >= 0)
-    neg_numerator = sum(-sim * (6 - users[i][target_game]) for i, sim in sims.items() if sim <0)
-    denominator = sum(abs(sim) for i, sim in sims.items())
- 
+    # print "Printing inputs from predict"
+    # print sims
+    err2 = [users[i][target_game] for i, sim in sims.items() if users[i][target_game] > 0]
+
+    pos_numerator = sum(sim * users[i][target_game] for i, sim in sims.items() if sim >= 0 and users[i][target_game] > 0)
+    neg_numerator = sum(-sim * (6 - users[i][target_game]) for i, sim in sims.items() if sim < 0 and users[i][target_game] > 0)
+    denominator = sum(abs(sim) for i, sim in sims.items() if users[i][target_game] > 0)
+
+
     result = "Need more data to predict!" if denominator == 0 else (pos_numerator + neg_numerator) / denominator
-    print "Printing pos_numerator"
-    print pos_numerator
-    print "Printing neg_numerator"
-    print neg_numerator
-    print "Printing denominator from predict"
-    print denominator
-    print "Printing result from predict"
-    print result
 
     return result
 
@@ -138,6 +133,7 @@ def standard_deviation(ratings):
     deviations = [rating - mean for rating in ratings]
     sum_sq_deviations = sum([dev ** 2 for dev in deviations])
     return sqrt(sum_sq_deviations/(len(ratings)-1))
+
 # def filt(user1, user2, games):
 #     """Filter down lists to only include ratings they've both done"""
 
