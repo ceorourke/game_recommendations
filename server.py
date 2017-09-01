@@ -199,6 +199,8 @@ def get_recommendation():
                 games_info.append(num_games) 
                 return render_template("recommendation.html", games_info=games_info)
             raw_pred = predict(sims, users, game)
+            print "Printing raw_pred"
+            print raw_pred
 
             if raw_pred > 3.0:
                 recommendation = (game, raw_pred)

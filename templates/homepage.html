@@ -7,10 +7,7 @@
   
 <!--   <h3><a href="/user/{{  session.user_id  }}">Go to my profile!</a></h3><br/>
  -->
- {% if search_term %} 
- <input type="hidden" id="hidden_stuff" value="{{ search_term }}">
- {% endif %}
- 
+
   <h3>Get a game recommendation</h3>
 
     <form action="/recommendation" method="GET">
@@ -53,17 +50,7 @@
  -->
 <!--   <h3><a href="/logout">Logout</a></h3>
  -->
-  <script src="http://code.jquery.com/jquery.js"></script>
-
-  <script>
-//   $(document).ready(function(){
-//     if ('userInput' in searchResults){
-//       debugger;
-//       updateHomepage(searchResults['userInput'])
-//       searchResults = {};
-//     }
-//   })
- // </script>
+<script src="http://code.jquery.com/jquery.js"></script>
 
 <script src="/static/searchResults.js"></script>
 {% endblock %}

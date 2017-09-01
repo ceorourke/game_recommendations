@@ -113,18 +113,21 @@ def pearson(pairs):
 def predict(sims, users, target_game):
     """Predict similarity"""
 
-    # print "Printing inputs from predict"
-    # print sims
+    print "Printing inputs from predict"
+    print sims
     pos_numerator = sum(sim * users[i][target_game] for i, sim in sims.items() if sim >= 0)
     neg_numerator = sum(-sim * (6 - users[i][target_game]) for i, sim in sims.items() if sim <0)
     denominator = sum(abs(sim) for i, sim in sims.items())
  
     result = "Need more data to predict!" if denominator == 0 else (pos_numerator + neg_numerator) / denominator
-    
-    # print "Printing denominator from predict"
-    # print denominator
-    # print "Printing result from predict"
-    # print result
+    print "Printing pos_numerator"
+    print pos_numerator
+    print "Printing neg_numerator"
+    print neg_numerator
+    print "Printing denominator from predict"
+    print denominator
+    print "Printing result from predict"
+    print result
 
     return result
 
