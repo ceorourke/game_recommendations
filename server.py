@@ -22,17 +22,11 @@ def welcome():
 
     return render_template("welcome.html")
 
-@app.route("/test")
-def test_stuff():
-
-    return render_template("test.html")
 
 @app.before_request
 def before_everything():
-    """Stuff to do before every other route"""
-    
-    # import pdb; pdb.set_trace()
-    # raise Exception
+    """Stuff to do before every route"""
+
     if request.path == '/homepage':
         g.homepage = True
     else:
@@ -46,24 +40,15 @@ def homepage():
     system_info = UserSystem.query.filter_by(user_id=user_id).all()
     genre_info = Genre.query.all()
     search_term = request.args.get('search_term')
-    if search_term != None:
-        results = search(search_term)
-    else:
-        results = None
-
-    print "Printing results in homepage"
-    print type(results)
-    print results
 
     return render_template("homepage.html", system_info=system_info, 
                                             genre_info=genre_info,
-                                            results=results)
+                                            search_term=search_term)
 
 @app.route("/homepage_search")
 def homepage_with_search():
     """Show homepage with search results"""
 
-    # do search, same as in search route
     search_term = request.args.get("search")
 
     return redirect(url_for('homepage', search_term=search_term))

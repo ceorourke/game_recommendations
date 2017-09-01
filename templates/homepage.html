@@ -1,12 +1,16 @@
 {% extends 'base.html' %}
 
-{% block title %}Games and Stuff{% endblock %}
+{% block title %}Games Recommendations{% endblock %}
 
 {% block content %}
 
   
 <!--   <h3><a href="/user/{{  session.user_id  }}">Go to my profile!</a></h3><br/>
  -->
+ {% if search_term %} 
+ <input type="hidden" id="hidden_stuff" value="{{ search_term }}">
+ {% endif %}
+ 
   <h3>Get a game recommendation</h3>
 
     <form action="/recommendation" method="GET">

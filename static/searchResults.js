@@ -1,18 +1,13 @@
 "use strict";
 
-var searchResults = {};
-
-function checkPath(results){
-    var path = $('#hidden_stuff').val();
-    if (path != '/homepage'){
-        searchResults['userInput'] = results;
-        console.log(searchResults['userInput']);
-        window.location.assign('/homepage');
-        }
-    else {
-        updateHomepage(results);
+$(document).on('ready', function() {
+    var hiddenStuff = $('#hidden_stuff').val();
+    if (hiddenStuff != undefined) {
+        $('#search-text').val(hiddenStuff);
+        $('#search-btn').click();
     }
-}
+})
+
 function updateHomepage(results){
     $('#search-results').html('<h3>'+'Search Results: '+'</h3></br>')
     for (var i = 0; i < results.games.length; i++) {
@@ -44,7 +39,7 @@ function getResults(evt){
 
     var game = $('#search-text').val();
 
-    $.post('/search.json', {'game': game}, checkPath);
+    $.post('/search.json', {'game': game}, updateHomepage);
 }
 
 $('#search-btn').on('click', getResults);
