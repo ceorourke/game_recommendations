@@ -2,11 +2,35 @@
     {{ message }}
 {% endfor %}
 
-  <h2>Login or <a href="/register">Register</a></h2>
-    <div id="login">
-      <form action="/login" method="POST">
-        Email: <input type="email" name="email"><br/>
-        Password: <input type="password" name="password"><br/>
-        <input type="submit" value="Login">
-      </form>
-    </div>
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" 
+          href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" 
+          integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" 
+          crossorigin="anonymous">
+      <title>Login</title>
+  </head>
+
+  <body>
+    <style>
+      body {
+        background-image: url("/static/img/gaming-pattern.png");
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center;
+    }
+    </style>
+<center><br/>
+<h2>Login or <a href="/register">Register</a></h2><br/>
+  <div id="login">
+    <form action="/login" method="POST">
+      <span> Email: <br/><input type="email" name="email"></span></br>
+      <span>Password: <br/><input type="password" name="password"></span></br><br/>
+      <input type="submit" value="Login">
+    </form>
+  </div>
+</center>
+  </body>
+</html>

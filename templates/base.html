@@ -7,10 +7,16 @@
     </head>
 
     <body>
-
-        {% for message in get_flashed_messages() %}
-            {{ message }}
-        {% endfor %}
+    <style>
+      body {
+        background-image: url("/static/img/gaming-pattern.png");
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-size: cover;
+        background-position: center;
+    }
+    </style>
+        
 
         <nav class="navbar navbar-inverse">
   <div class="container-fluid">
@@ -45,20 +51,14 @@
       </form>
       <ul class="nav navbar-nav navbar-right">
         <li><a href="/logout">Logout</a></li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="#">Action</a></li>
-            <li><a href="#">Another action</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-          </ul>
-        </li>
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
+
+{% for message in get_flashed_messages() %}
+            {{ message }}
+        {% endfor %}
 
         {% block content %} CONTENT HERE {% endblock %}
     <!-- Latest compiled and minified CSS -->

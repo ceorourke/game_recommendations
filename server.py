@@ -40,7 +40,7 @@ def homepage():
     system_info = UserSystem.query.filter_by(user_id=user_id).all()
     genre_info = Genre.query.all()
     search_term = request.args.get('search_term')
-
+    print search_term
     return render_template("homepage.html", system_info=system_info, 
                                             genre_info=genre_info,
                                             search_term=search_term)
@@ -50,7 +50,7 @@ def homepage_with_search():
     """Show homepage with search results"""
 
     search_term = request.args.get("search")
-
+    
     return redirect(url_for('homepage', search_term=search_term))
 
 

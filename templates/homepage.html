@@ -1,56 +1,65 @@
 {% extends 'base.html' %}
 
-{% block title %}Games Recommendations{% endblock %}
+{% block title %}Game Recommendations{% endblock %}
 
 {% block content %}
+<!-- this lets you get redirected and still show ajax on homepage -->
+{% if search_term %} 
+<input type="hidden" id="hidden_stuff" value="{{ search_term }}">
+{% endif %}
+<!-- don't delete this!! -->
 
-  
-<!--   <h3><a href="/user/{{  session.user_id  }}">Go to my profile!</a></h3><br/>
- -->
+<center><h3>Get a game recommendation</h3></center><br/><br/>
 
-  <h3>Get a game recommendation</h3>
+<style>
+  .dropdown-menu {
+    left: 35% !important;
+    margin-left: -70px;
+  }
+  li {
+    list-style-type: none !important;
+  }
+</style>
 
-    <form action="/recommendation" method="GET">
-
-    <b>Filter by system: </b><br/>
-
-      {% for system in system_info %}
-        <input type="checkbox" name="systems" value="{{ system.system.system_id }}">{{ system.system.name }}
-      {% endfor %}<br/><br/>
-
-      <b>Filter by genre: </b><br/>
-
-        {% for genre in genre_info %}
-          <input type="checkbox" name="genres" value="{{ genre.genre_id }}">{{ genre.name }}
+<center>
+  <form action="/recommendation" method="GET">
+  <div class="row">
+    <div class="col-xs-6">
+    <li class="dropdown">
+      <p class="dropdown-toggle" data-toggle="dropdown" role="button" 
+         aria-haspopup="true" aria-expanded="false">
+         Filter by system <span class="caret"></span></p>
+      <ul class="dropdown-menu">
+        {% for system in system_info %}
+          <input type="checkbox" name="systems" 
+                 value="{{ system.system.system_id }}">
+                 {{ system.system.name }}<br/>
         {% endfor %}
-      <br/><br/>
+      </ul>
+    </li>
+  </div>
+  <div class="col-xs-6">
+    <li class="dropdown">
+      <p class="dropdown-toggle" data-toggle="dropdown" role="button" 
+         aria-haspopup="true" aria-expanded="false">
+         Filter by genre <span class="caret"></span></p>
+      <ul class="dropdown-menu">
+            {% for genre in genre_info %}
+              <input type="checkbox" name="genres" value="{{ genre.genre_id }}">
+              {{ genre.name }}<br/>
+            {% endfor %}
+      </ul>
+    </li>
+  </div>
+  </div>
+  <br/><br/>
+  <input type="submit" value="Gimme!">
+  </form>
+</center>
 
-
-      <input type="submit" value="Gimme!">
-<br/><br/>
+<!-- this is where the AJAX search results show up -->
 <div id="search-results"></div>
 
-<!-- {% raw %}
-  <script id="search-results" type="text/x-handlebars-template">
-    {{#each games}}
-    <a href='/games/{{this.game_id}}'>{{this.name}}</a></br>
-    {{/each}}
-  </script>
-{% endraw %} -->
-
-<!--     </form>
-
-  <h3>Search for games to rate</h3>
-
-  <form action="/search" method="GET">
-    Game name: <input type="text" name="search">
-    <input type="submit" value="Search">
-    </form>
-<br/>
- -->
-<!--   <h3><a href="/logout">Logout</a></h3>
- -->
 <script src="http://code.jquery.com/jquery.js"></script>
-
 <script src="/static/searchResults.js"></script>
 {% endblock %}

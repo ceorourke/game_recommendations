@@ -7,10 +7,38 @@
 <!-- <a href="/homepage">Back to homepage</a>
  -->
  <style>
-.carousel-inner > .item > img {
+  .carousel-inner > .item > img {
     margin: 0 auto;
+    width: auto;
+    height: 1000;
+    max-height: 1000;
+    min-height: 1000;
 }
+
+  #game-rec-carousel img {
+    width: auto;
+    height: 1000;
+    max-height: 1000;
+    min-height: 1000;
+}
+
+/*  .test-images {
+  height: 300px;
+  }
+
+  .test-images img {
+  max-height: 100%;  
+  max-width: 100%; 
+  position: absolute;  
+  top: 0;  
+  bottom: 0;  
+  left: 0;  
+  right: 0;  
+  margin: auto;
+  }*/
  </style>
+
+
  {% if games_info == [] %}
     Please check at least one system and one genre!<br/>
     If you're sure you did, there may not be any games that fit the criteria.
@@ -27,51 +55,60 @@
     {% else %}
         <b><center>Why don't you try: </center></b><br/><br/>
 
-<div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+<!-- Main carousel div -->
+<div id="game-rec-carousel" class="carousel slide" data-ride="carousel">
   <!-- Indicators -->
+<!--   These show the little circles at the bottom-->  
   <ol class="carousel-indicators">
-    <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
-    <li data-target="#carousel-example-generic" data-slide-to="1"></li>
-    <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+    <li data-target="#game-rec-carousel" data-slide-to="0" class="active"></li>
+    <li data-target="#game-rec-carousel" data-slide-to="1"></li>
+    <li data-target="#game-rec-carousel" data-slide-to="2"></li>
   </ol>
 
   <!-- Wrapper for slides -->
-  <div class="carousel-inner" role="listbox">
+  <div class="carousel-inner" role="listbox" style=" width:100%; height: 500px !important;">
     <div class="item active">
-       <center><h1><a href="/games/{{ games_info[0].game_id }}">{{ games_info[0].name }}</a></h1></center>
-         
-         {% if games_info[0]['cover'] != None %}
-            <img class="img-fluid" src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{ games_info[0]['cover'] }}">
-            {% else %}
-            <img src="http://placekitten.com.s3.amazonaws.com/homepage-samples/200/286.jpg">
-            {% endif %}
-         <div class="carousel-caption">
-            
-            It's a {{ games_info[0].percentage }}% match!
-        </div>
-    </div>
+      <center>
+        <h1>
+          <a href="/games/{{ games_info[0].game_id }}">{{ games_info[0].name }}</a>
+        </h1>
+      </center>
+      <!-- This shows the first thing in the carousel -->
+      {% if games_info[0]['cover'] != None %}
+        <img class="test-images" src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{ games_info[0]['cover'] }}">
+      {% else %}
+        <img class="test-images" src="http://placekitten.com.s3.amazonaws.com/homepage-samples/200/286.jpg">
+      {% endif %}
+         <center> It's a {{ games_info[0].percentage }}% match! </center>
 
-        {% for game in games_info[1:] %}
-            <div class="item">
-            {% if game['cover'] != None %}
-            <center><h1><a href="/games/{{ game.game_id }}">{{ game.name }}</a></h1></center>
-            <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{ game['cover'] }}">
-            {% else %}
-            <img src="http://placekitten.com.s3.amazonaws.com/homepage-samples/200/286.jpg">
-            {% endif %}
-            <div class="carousel-caption">
-            It's a {{ game.percentage }}% match!
-            </div>    
-            </div>
-        {% endfor %}
+  </div>
+
+    <!-- This shows everything else in the carousel -->
+    {% for game in games_info[1:] %}
+      <div class="item">
+      {% if game['cover'] != None %}
+        <center>
+          <h1>
+            <a href="/games/{{ game.game_id }}">{{ game.name }}</a>
+          </h1>
+        </center>
+        <img class="test-images" src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{ game['cover'] }}">
+      {% else %}
+        <img class="test-images" src="http://placekitten.com.s3.amazonaws.com/homepage-samples/200/286.jpg">
+      {% endif %}
+        <center>It's a {{ game.percentage }}% match!</center>
+
+      </div>
+    {% endfor %}
   </div>
 
   <!-- Controls -->
-  <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+  <!-- This shows the arrows on the left and right -->
+  <a class="left carousel-control" href="#game-rec-carousel" role="button" data-slide="prev">
     <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
     <span class="sr-only">Previous</span>
   </a>
-  <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+  <a class="right carousel-control" href="#game-rec-carousel" role="button" data-slide="next">
     <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
     <span class="sr-only">Next</span>
   </a>
