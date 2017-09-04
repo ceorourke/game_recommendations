@@ -16,19 +16,37 @@ Game Not Found
 
 {% block content %}
 
-<!-- <a href="/homepage">Back to homepage</a>
- -->
-{% if game_info %}
-
-    <h3>{{ game_info.name }}</h3><br/>
-    <div id="rated">
-    {% if rating %}
-        You rated this: {{ rating.score }}
-    {% endif %}
+<div class="container">
+  <div class="row">
+    <div class="col-xs-12">
+      <center><h3>{{ game_info.name }}</h3></center>
     </div>
+  </div>
 
-     <form action="/gamerating" method="POST">
-        <input type="hidden" id="gameId" name="game_id" value="{{ game_info.game_id }}">
+  <div class="row">
+
+    <!-- cover art -->
+    <div class="col-xs-3">
+      {% if game_info.covers != [] %}
+          <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{ game_info.covers[0].cover_url }}" 
+          style="width: {{ game_info.covers[0].cover_width }}px height: {{ game_info.covers[0].cover_height }};">
+      {% else %}
+          <img src="http://placekitten.com.s3.amazonaws.com/homepage-samples/200/286.jpg">
+      {% endif %}<br/><br/>
+    </div> <!--end columm-->
+    <div class="col-xs-1"></div>
+
+    
+    <div class="col-xs-4">
+      <div id="rated">
+        {% if rating %}
+            You rated this: {{ rating.score }}
+        {% endif %}
+      </div>
+
+      <form action="/gamerating" method="POST">
+        <input type="hidden" id="gameId" name="game_id" 
+               value="{{ game_info.game_id }}">
         Rating: 
         <input type="radio" name="rating" value="1"> 1
         <input type="radio" name="rating" value="2"> 2
@@ -36,98 +54,63 @@ Game Not Found
         <input type="radio" name="rating" value="4"> 4
         <input type="radio" name="rating" value="5"> 5
         <input type="submit" id="submit-btn" value="Submit">
-    </form>
-        <b> Rating Guidelines</b><br/>
-        <b>1:</b> Meh 
-        <b>2:</b> It's OK 
-        <b>3:</b> Fine 
-        <b>4:</b> Good!
-        <b>5:</b> BEST GAME EVAR 
+      </form><br/>
 
-    <h3>Systems:</h3> 
-    {% for system in game_info.gamesystems %}
+      <b> Rating Guidelines</b><br/>
+      <b>1:</b> Meh <br/>
+      <b>2:</b> It's OK <br/>
+      <b>3:</b> Fine <br/>
+      <b>4:</b> Good! <br/>
+      <b>5:</b> BEST GAME EVAR 
+    </div> <!--end columm-->
+
+    <!-- systems -->
+    <div class="col-xs-2">
+      <h3>Systems:</h3> 
+      {% for system in game_info.gamesystems %}
         {{ system.system.name }}<br/>
-    {% endfor %} <br/>
+      {% endfor %} <br/>
+    </div> <!--end columm-->
 
-    <h3>Genres: </h3>
-    {% for genre in game_info.gamegenres %}
+    <!-- genres -->
+    <div class="col-xs-2">
+      <h3>Genres: </h3>
+      {% for genre in game_info.gamegenres %}
         {{ genre.genre.name }}<br/>
-    {% endfor %} <br/>
+      {% endfor %} <br/>
+    </div> <!--end columm-->
 
+  </div> <!--end row-->
 
-    {% if game_info.covers != [] %}
-        <img src="https://images.igdb.com/igdb/image/upload/t_cover_big/{{ game_info.covers[0].cover_url }}" 
-        style="width: {{ game_info.covers[0].cover_width }}px height: {{ game_info.covers[0].cover_height }};">
-    {% else %}
-        <img src="http://placekitten.com.s3.amazonaws.com/homepage-samples/200/286.jpg">
-    {% endif %}<br/><br/>
-    
     {{ game_info.summary }} <br/><br/>
 
+    <!-- storyline -->
     {% if game_info.storyline != None %}
         {{ game_info.storyline }}
     {% endif %}<br/><br/>
 
+    <!-- videos -->
     {% if game_info.videos != None %}
-        {% for video in game_info.videos %}
-            {{ video.video_name }} <br/>
-
-              <iframe width="420" height="315" allowfullscreen
-
-              src="http://www.youtube.com/embed/{{ video.video_url}} ">
+      {% for video in game_info.videos %}
+        {{ video.video_name }} <br/>
+          <iframe width="420" height="315" allowfullscreen
+                  src="http://www.youtube.com/embed/{{ video.video_url}} ">
           </iframe>
           <br/>
       {% endfor %}
-      {% endif %}
+    {% endif %}
 
-
+    <!-- screenshots -->
     {% if game_info.screenshots != None %}
-        {% for screenshot in game_info.screenshots %}
-        <!-- {{ screenshot.screenshot_url }} -->
-            <img src="https://images.igdb.com/igdb/image/upload/t_screenshot_med_2x/{{ screenshot.screenshot_url }}" 
-                 style="width:{{ screenshot.screenshot_width }}px height:{{ screenshot.screenshot_height }};">
-        {% endfor %}
-    {% endif %}<br/><br/>
+      {% for screenshot in game_info.screenshots %}
+        <img src="https://images.igdb.com/igdb/image/upload/t_screenshot_med_2x/{{ screenshot.screenshot_url }}" 
+             style="width:{{ screenshot.screenshot_width }}px height:{{ screenshot.screenshot_height }};">
+      {% endfor %}
+    {% endif %}
 
-{% else %}
-<br/><br/>
-
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-<i class="fa fa-frown-o" aria-hidden="true"></i>
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-<i class="fa fa-frown-o" aria-hidden="true"></i>
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-<i class="fa fa-frown-o" aria-hidden="true"></i>
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-<i class="fa fa-frown-o" aria-hidden="true"></i>
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-<i class="fa fa-frown-o" aria-hidden="true"></i>
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-<i class="fa fa-frown-o" aria-hidden="true"></i>
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-<i class="fa fa-frown-o" aria-hidden="true"></i>
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-
- <p>No game found by that name. Please try again. </p>
-
-<i class="fa fa-frown-o" aria-hidden="true"></i>
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-<i class="fa fa-frown-o" aria-hidden="true"></i>
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-<i class="fa fa-frown-o" aria-hidden="true"></i>
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-<i class="fa fa-frown-o" aria-hidden="true"></i>
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-<i class="fa fa-frown-o" aria-hidden="true"></i>
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-<i class="fa fa-frown-o" aria-hidden="true"></i>
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-<i class="fa fa-frown-o" aria-hidden="true"></i>
-<i class="fa fa-gamepad" aria-hidden="true"></i>
-<i class="fa fa-frown-o" aria-hidden="true"></i>
+</div>  <!-- end container -->
 
 
-{% endif %}
 <script src="http://code.jquery.com/jquery.js"></script>
 <script src="/static/rating.js"></script>
 {% endblock %}

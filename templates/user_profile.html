@@ -3,55 +3,68 @@
 {% block title %}{{ user_info.username }}'s Profile{% endblock %}
 
 {% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-xs-4">
+      <h3> Username: </h3>  {{ user_info.username }}        <br>
+      <h3> Email: </h3>     {{ user_info.email }}           <br>
+      <h3> User Since: </h3> {{ account_created }} <br>
+    </div>
+    <div class="col-xs-7">
+    <!-- shows chart.js visualization -->
+    {% if num_games >= 3 %}
+    <canvas id="myChart" width="400" height="400"></canvas>
+    {% endif %}
+    </div>
+    <div class="col-xs-1">
+    </div>
+  </div>
 
-<!-- <a href="/homepage">Back to homepage</a>
- -->
-<p>
-  <h3> Username: </h3>  {{ user_info.username }}        <br>
-  <h3> Email: </h3>     {{ user_info.email }}           <br>
-  <h3> User Since: </h3> {{ account_created }} <br>
+  <div class="row">
+    <div class="col-xs-6">
+      <h3> Systems: </h3>
 
-  <!-- shows chart.js visualization -->
-  {% if num_games >= 3 %}
-  <canvas id="myChart" width="400" height="400"></canvas>
-  {% endif %}
-  <h3> Systems: </h3>
+      {% for system in system_info %}
+        {{ system.system.name }} <br>
+      {% endfor %}
 
-  {% for system in system_info %}
-    {{ system.system.name }} <br>
-  {% endfor %}
+      {% if session.get("user_id") == user_info.user_id %}<br/>
+        <b>Got a new system?</b><br/>
+        Add it <a href="/add_systems">here</a>
+      {% endif %}
+    </div>
+    <div class="col-xs-6">
+    <h3> Games I've Rated: </h3>
+    <table>
+        <tr>
+          <th>Game</th>
+          <th>Rated</th>
+        </tr>
+        <tr>
+          <td>
+              {% for game in rating_info %}
+              <a href="/games/{{ game[2] }} ">{{ game[0] }} </a><br/>
+              {% endfor %}
+          </td>
+          <td>
+              {% for game in rating_info%}
+              {{ game[1] }}<br/>
+              {% endfor %}
+          </td>
+        </tr>
+      </table>
+        <br/>
 
-  {% if session.get("user_id") == user_info.user_id %}
-  Got a new system? Add it <a href="/add_systems">here</a>
-  {% endif %}
+    <b> Rating Guidelines</b><br/>
+    <b>1:</b> Meh 
+    <b>2:</b> It's OK 
+    <b>3:</b> Fine 
+    <b>4:</b> Good!
+    <b>5:</b> BEST GAME EVAR
+  </div>
+  </div>
+</div>
 
-  <h3> Games I've Rated: </h3>
-  <table>
-      <tr>
-        <th>Game</th>
-        <th>Rated</th>
-      </tr>
-      <tr>
-        <td>
-            {% for game in rating_info %}
-            <a href="/games/{{ game[2] }} ">{{ game[0] }} </a><br/>
-            {% endfor %}
-        </td>
-        <td>
-            {% for game in rating_info%}
-            {{ game[1] }}<br/>
-            {% endfor %}
-        </td>
-      </tr>
-    </table>
-      <br/>
-  <b> Rating Guidelines</b><br/>
-  <b>1:</b> Meh 
-  <b>2:</b> It's OK 
-  <b>3:</b> Fine 
-  <b>4:</b> Good!
-  <b>5:</b> BEST GAME EVAR 
-</p>
 <script>var user_id={{ user_id }}</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js"></script>
 <script src="http://code.jquery.com/jquery.js"></script>
