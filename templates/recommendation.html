@@ -33,20 +33,37 @@
 
 
  {% if games_info == [] %}
+  <center>
+    <div class="row">
+      <div class="col-xs-12">
     Please check at least one system and one genre!<br/>
     If you're sure you did, there may not be any games that fit the criteria.
+      </div>
+    </div>
+  </center>
 {% elif games_info[0] == "no" %}
+  <center>
+    <div class="row">
+      <div class="col-xs-12">
     You've rated every game exactly the same. That's not very useful
     for trying to figure out what you like. <br/>
     Please change it up! Rate some stuff you don't like, rate some stuff you love, etc. <br/>
-    This will give you the best recommendations! 
+    This will give you the best recommendations!
+      </div>
+    </div>
+  </center>
 {% else %}
      {% if games_info[0] < 10 %}
+     <center>
+      <div class="row">
+        <div class="col-xs-12">
         <b>Please rate at least 10 games to get a recommendation.</b></br>
         You've rated <b>{{ games_info[0] }}</b> games.
-
+          </div>
+        </div>
+     </center>
     {% else %}
-        <b><center>Why don't you try: </center></b><br/><br/>
+        <h3><center>Why don't you try: </center></h3><br/><br/>
 
 <!-- Main carousel div -->
 <div id="game-rec-carousel" class="carousel slide" data-ride="carousel">

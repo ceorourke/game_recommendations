@@ -8,77 +8,77 @@
 <input type="hidden" id="hidden_stuff" value="{{ search_term }}">
 {% endif %}
 <!-- don't delete this!! -->
+<div class="container">
+  <center><h3>Get a game recommendation</h3></center><br/><br/>
 
-<center><h3>Get a game recommendation</h3></center><br/><br/>
+  <style>
+    .dropdown-menu {
+      left: 35% !important;
+      margin-left: -70px;
+    }
+    li {
+      list-style-type: none !important;
+    }
 
-<style>
-  .dropdown-menu {
-    left: 35% !important;
-    margin-left: -70px;
-  }
-  li {
-    list-style-type: none !important;
-  }
+  </style>
 
-</style>
-
-<center>
-  <form action="/recommendation" method="GET">
-  <div class="row">
-    <div class="col-xs-3">
-    </div>
-    <div class="col-xs-3">
-    <li class="dropdown">
-      <p class="dropdown-toggle" data-toggle="dropdown" role="button" 
-         aria-haspopup="true" aria-expanded="false">
-         Filter by system <span class="caret"></span></p>
-      <ul class="dropdown-menu">
-        {% for system in system_info %}
-          <input type="checkbox" name="systems" 
-                 value="{{ system.system.system_id }}">
-                 {{ system.system.name }}<br/>
-        {% endfor %}
-      </ul>
-    </li>
-  </div>
-  <div class="col-xs-3">
-    <li class="dropdown">
-      <p class="dropdown-toggle" data-toggle="dropdown" role="button" 
-         aria-haspopup="true" aria-expanded="false">
-         Filter by genre <span class="caret"></span></p>
-      <ul class="dropdown-menu">
-            {% for genre in genre_info %}
-              <input type="checkbox" name="genres" value="{{ genre.genre_id }}">
-              {{ genre.name }}<br/>
-            {% endfor %}
-      </ul>
-    </li>
-  </div>
-      <div class="col-xs-3">
-    </div>
-  </div>
-  <br/><br/>
-  <input type="submit" id="submit-btn" value="Gimme!">
-  </form>
-</center>
-<br/><br/>
-
-<div id="loading" hidden>
   <center>
-  <img src="/static/img/pikachu-loading.gif" style="width: 100px; height: 71px">
+    <form action="/recommendation" method="GET">
+    <div class="row">
+      <div class="col-xs-3">
+      </div>
+      <div class="col-xs-3">
+      <li class="dropdown">
+        <p class="dropdown-toggle" data-toggle="dropdown" role="button" 
+           aria-haspopup="true" aria-expanded="false">
+           Filter by system <span class="caret"></span></p>
+        <ul class="dropdown-menu">
+          {% for system in system_info %}
+            <input type="checkbox" name="systems" 
+                   value="{{ system.system.system_id }}">
+                   {{ system.system.name }}<br/>
+          {% endfor %}
+        </ul>
+      </li>
+    </div>
+    <div class="col-xs-3">
+      <li class="dropdown">
+        <p class="dropdown-toggle" data-toggle="dropdown" role="button" 
+           aria-haspopup="true" aria-expanded="false">
+           Filter by genre <span class="caret"></span></p>
+        <ul class="dropdown-menu">
+              {% for genre in genre_info %}
+                <input type="checkbox" name="genres" value="{{ genre.genre_id }}">
+                {{ genre.name }}<br/>
+              {% endfor %}
+        </ul>
+      </li>
+    </div>
+        <div class="col-xs-3">
+      </div>
+    </div>
+    <br/><br/>
+    <input type="submit" id="submit-btn" value="Gimme!">
+    </form>
+  </center>
+  <br/><br/>
+
+  <div id="loading" hidden>
+    <center>
+    <img src="/static/img/pikachu-loading.gif" style="width: 100px; height: 71px">
+    </center>
+  </div>
+
+  <!-- this is where the AJAX search results show up -->
+
+  <div class="row">
+    <center>
+    <div class="col-xs-12">
+      <div id="search-results"></div>
+    </div>
+  </div>
   </center>
 </div>
-
-<!-- this is where the AJAX search results show up -->
-
-<div class="row">
-  <center>
-  <div class="col-xs-12">
-    <div id="search-results"></div>
-  </div>
-</div>
-</center>
-
 
 
 <script src="http://code.jquery.com/jquery.js"></script>
