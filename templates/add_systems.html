@@ -4,10 +4,12 @@
 
 {% block content %}
 
+<div class="container">
+
 <h1>Add Systems</h1>
 {% if not_owned_systems_list %}
     <form action="/add_systems" method="POST">
-        Systems: </br>
+<!--         <h3>Systems:</h3> </br> -->
         {% for system in not_owned_systems_list %}
             <input type="checkbox" name="systems" value="{{ system }}">{{ system }}
             </br>
@@ -17,5 +19,6 @@
 {% else %}
     You can't add any systems because you own EVERYTHING! Holy crap!
 {% endif %}
+</div>
 
 {% endblock %}
