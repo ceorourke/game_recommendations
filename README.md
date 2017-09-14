@@ -19,3 +19,30 @@ The recommendations utilize the Pearson algorithm. The similarity between users 
 
 # Tech Stack
 SQLAlchemy, PostgreSQL, Flask, Jinja, Python, IGDB API, schedule, unittest, Javascript, Chart.js, JQuery, json, AJAX, Bootstrap, HTML/CSS
+
+### Installation
+
+Game Recs has not yet been deployed, so here is how to run it locally on your machine. 
+
+First of all, you will need to obtain a free API key: https://www.igdb.com/api
+Create a secrets.sh file with a variable named IGDB_KEY (get this from the API), and create another variable named FLASK_SECRET_KEY with, well, a secret key :p 
+
+Then:
+```sh
+$ cd dir_of_your_choice
+$ virtualenv env
+$ pip install -r requirements.txt
+$ createdb games
+$ python seed.py
+$ source secrets.sh
+$ python server.py
+```
+Then navigate to:
+```sh
+http://localhost:5000/
+```
+The seed.py file loads in games that were recent when I first queried the API. For a potentially more updated list of games with new games that have come out since, run:
+```sh
+$ python updatedb.py
+```
+and restart the server.
