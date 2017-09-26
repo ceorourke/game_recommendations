@@ -28,7 +28,6 @@ This requires Python 2 and Linux (I set up a virtual machine with Vagrant) to ru
 
 
 Create a secrets.sh file with a variable named FLASK_SECRET_KEY with a value. For the purposes of just checking it out, this can be any string.
-
 Then:
 ```sh
 $ cd dir_of_your_choice
