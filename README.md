@@ -18,7 +18,9 @@ This app provides video game recommendations to users who aren't sure what to pl
 The recommendations utilize the Pearson algorithm. The similarity between users is calculated using a weighted average. Users who are more strongly correlated (negatively and positively) are given a higher weight, as they have more predictive power. i.e. if user A and user B have a strong positive correlation, user B's 5 star rating on a game is a good indicator that user a will also rate it at 5. Similarly, if user A and user C have a strong negative correlation, user C's 1 star rating on a game is a good indicator that user A will rate that game a 5.
 
 # Tech Stack
-SQLAlchemy, PostgreSQL, Flask, Jinja, Python, IGDB API, schedule, unittest, Javascript, Chart.js, JQuery, json, AJAX, Bootstrap, HTML/CSS
+SQLAlchemy, PostgreSQL, Flask, Python, Javascript(Chart.js, JQuery, json, AJAX), Bootstrap, HTML/CSS
+
+Libraries used: IGDB API, schedule, unittest, Jinja
 
 ### Installation
 
