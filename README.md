@@ -53,4 +53,4 @@ and restart the server.
 
 # Data Model
 
-![Data Model](/static/img/data_model)
+![Data Model](/static/img/data_model.png)
