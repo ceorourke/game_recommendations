@@ -50,3 +50,7 @@ Add a variable named IGDB_KEY (get this from the API) to secrets.sh and re-sourc
 $ python updatedb.py
 ```
 and restart the server.
+
+# Data Model
+
+![Data Model](/static/img/data_model)
