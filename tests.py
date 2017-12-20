@@ -19,13 +19,8 @@ class ServerTestsWithSession(unittest.TestCase):
         # Connect to test database
         connect_to_db(app, "postgresql:///testdb")
 
-
-
         # Create tables and add sample data
         db.create_all()
-        # import pdb; pdb.set_trace()
-        # write this function, make it fill the fake db with info
-        # at the bottom of model.py is good
         example_data()
         with self.client as c:
           with c.session_transaction() as sess:
@@ -96,7 +91,6 @@ class ServerTestsWithSession(unittest.TestCase):
 
         result = self.client.get("/recommendation", data={"systems": [130],
                                                           "genres": [12]})
-        # self.assertIn("you try:", result.data)
         self.assertIn("Zelda", result.data)
 
     def test_profile(self):
